@@ -1,0 +1,2497 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>HERO-ML</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body style="width: 50em">
+<h1>HERO-ML</h1>
+
+<p>
+This is the official website of the HERO-ML programming language,
+developed at Mälardalen University in Sweden.
+</p>
+
+<p>
+HERO-ML is a data-parallel array language, on very high level, which is
+intended to specify data parallel algorithms in a concise and
+platform-independent way. The goal is to support the software development
+for heterogeneous systems with different kinds of parallel numerical
+accelerators, where programs tend to be very platform-pecific and difficult
+to develop.
+</p>
+
+<p>Some useful links:</p>
+<ul>
+	<li><a href="https://www.es.mdu.se/publications/6649-HERO_ML_Specification">HERO-ML Specification</a></li>
+	<li><a href="">A HERO-ML interpreter on GitHub</a></li>
+	<li><a href="https://www.es.mdu.se/projects/511-HERO">The HERO project webpage</a></li>
+</ul>
+
+<H1><A ID="SECTION00020000000000000000">
+Introduction</A>
+</H1> 
+
+<P>
+There is an ever-growing need for computational power. An area where the
+need for heavy computing is increasing rapidly is embedded systems, where
+applications like autonomous vehicles require massive amounts of computing
+for tasks like machine learning, advanced signal and image processing,
+etc. These systems are often real-time systems, and they sometimes have
+strong constraints on energy consumption, memory, unit cost, etc. The
+response from the hardware industry has been to develop increasingly
+integrated, heterogenous hardware, where <SPAN  CLASS="textit">computational
+  accelerators</SPAN> are placed on the chip or board to offload computationally
+heavy tasks from the main processor. In this way, large computational
+resources can be provided at low cost.
+
+<P>
+Today we see a large proliferation of accelerator architectures:
+GPGPU's (like NVIDIA
+TESLA<A ID="tex2html2"
+  HREF="#foot1216"><SUP><SPAN CLASS="arabic">2</SPAN></SUP></A>),
+many-cores (such as Adapteva
+Ephiphany<A ID="tex2html3"
+  HREF="#foot1217"><SUP><SPAN CLASS="arabic">3</SPAN></SUP></A>),
+solutions involving FPGA (e.g., Xilinx
+ZYNQ<A ID="tex2html4"
+  HREF="#foot1218"><SUP><SPAN CLASS="arabic">4</SPAN></SUP></A>),
+and even ASICs. Although these architectures are quite different, they
+have in common that they typically rely on massive data parallelism to
+obtain performance. Besides embedded systems, these kinds of
+accelerators are also increasingly being used in traditional HPC as
+well as cloud computing: an example of the latter is Microsoft's
+Catapult project that integrates FPGAs into
+servers<A ID="tex2html5"
+  HREF="#foot1219"><SUP><SPAN CLASS="arabic">5</SPAN></SUP></A>.
+
+<P>
+Developing software for these heterogenenous systems provides a
+challenge. Utilizing the accelerators well requires parallel code, but
+parallel programming can be very hard and error-prone. The situation is
+aggravated by the fact that current programming practices for the
+accelerators are very dependent on the type of accelerator. For instance,
+code for a GPGPU will typically be very different from code for a
+many-core. This makes the code less portable, and costly redesigns may be
+needed if the hardware platform is changed.
+
+<P>
+A possible way forward is to consider <SPAN  CLASS="textit">model-based development</SPAN>,
+where system and software is specified by high-level models rather
+than explicit program code. The models can capture different aspects
+such as system structure, or program logic. If the model is
+<SPAN  CLASS="textit">executable</SPAN> then it can be used to simulate the aspect of the
+system that it captures: such models can be used to capture errors in
+the design early, and they can also be used as test oracles in the
+validation phase.
+
+<P>
+HERO-ML is a data-parallel executable modeling language, intended to be used
+for very high level specifications of data parallel algorithms. Such
+executable specifications can serve as portable &ldquo;blueprints&rdquo; when
+developing accelerator code, and they can help finding flaws in the
+algorithms at an early stage of development. HERO-ML is inspired by
+data-parallel and array languages such as *lisp&nbsp;[#!starlisp-started!#],
+NESL&nbsp;[#!nesl-impl-94!#], ZPL&nbsp;[#!Chamberlain-etal-ZPL!#], and
+HPF&nbsp;[#!HPF-handbook!#]. These languages all implement a parallel model of
+computation where the parallelism resides in collective operations over data
+structures, such as arrays, rather than explicitly in threads or processes.
+This model of computation is conceptually much simpler than the control
+parallelism given by threads and processes, and languages like the ones
+mentioned above introduce various high-level concepts and constructs that
+help writing clear and concise data parallel code.  HERO-ML aims to
+generalize and unify these concepts. Since HERO-ML is intended for
+high-level modeling rather than high performance production code, its design
+does not have to make compromises in order to allow for efficient
+implementations. Thus, its design can rather focus on providing maximal
+support for the early modeling phase in the design of software for parallel
+accelerators.
+
+<P>
+
+<H1><A ID="SECTION00030000000000000000">
+HERO-ML Overview</A>
+</H1> 
+
+<P>
+HERO-ML is an imperative language extended with a data parallel array data
+type. The language is deliberately kept simple, since its main purpose is to
+demonstrate the principles of very high-level data parallel programming
+rather than providing a full-fledged production language. The sequential
+part is a standard WHILE language&nbsp;[#!ProgramAnalysis:Book!#], extended with
+a type for so-called <SPAN  CLASS="textit">abstract arrays</SPAN> (see Section&nbsp;<A HREF="#sec-AA"><IMG  ALT="[*]" SRC="crossref.png"></A>), a set
+of <SPAN  CLASS="textit">array expressions</SPAN>, a statement to <SPAN  CLASS="textit">evaluate</SPAN> such
+  expressions, and bind the resulting array to a program variable, and a
+<SPAN  CLASS="textit">masked concurrent assignment</SPAN> where all elements in an existing array
+that fulfil some condition are updated.
+
+<P>
+As mentioned, HERO-ML is deliberately kept simple. Thus the current version
+lacks some features found in full programming languages. Features that are
+left out include user-defined functions and procedures, user-defined types,
+records, objects, and pointers. It is possible that some of these features
+will be added in future versions of HERO-ML.
+
+<P>
+
+<H2><A ID="SECTION00031000000000000000"></A>
+<A ID="sec-AA"></A><BR>
+Abstract Arrays, and Bounds
+</H2>
+
+<P>
+Abstract arrays are basically the same as the previously considered
+<SPAN  CLASS="textit">data fields</SPAN>&nbsp;[#!Holmerin-Xjobb!#,#!DFH-HW2000!#]. They provide a
+generalization of conventional arrays by observing that these really are
+partial functions from some domain of indices to a range of values. For
+conventional, dense arrays the domains are intervals. Abstract arrays
+generalise this by also allowing other domains. For instance we can have
+<SPAN  CLASS="textit">sparse</SPAN> arrays, whose domains are general finite sets.
+In general an abstract array is a pair
+<P><!-- MATH
+ \begin{displaymath}
+(f,bnd)
+\end{displaymath}
+ -->
+</P><DIV CLASS="displaymath">
+<IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img1.svg"
+ ALT="$\displaystyle (f,bnd)
+$">
+</DIV><P></P>
+where <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ ALT="$bnd$"></SPAN> is its <SPAN  CLASS="textit">bound</SPAN>, which is a set representation, and <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img3.svg"
+ ALT="$f$"></SPAN> is a
+function defining the values of the array elements for the indices within
+the bound. Evaluating an abstract array means to first compute its bound,
+and then create a table with the array elements that represent the
+function. For this to work, the bound must represent a finite set. Some
+Hero-ML bounds indeed represent infinite sets, and array expressions with
+such bounds cannot be evaluated. (Infinite bounds may seem useless, but the
+evaluation of abstract arrays has a lazy flavor where such bounds can make
+sense.)
+
+<P>
+HERO-ML supports the following kinds of bounds:
+
+<UL>
+<LI><SPAN  CLASS="textit">dense bounds</SPAN>, representing intervals,
+
+<P>
+</LI>
+<LI><SPAN  CLASS="textit">sparse bounds</SPAN>, representing general finite sets,
+
+<P>
+</LI>
+<LI><SPAN  CLASS="textit">predicate bounds</SPAN>, representing (possibly infinite) sets
+    defined by a predicate,
+
+<P>
+</LI>
+<LI><SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.34ex; vertical-align: -0.57ex; " SRC="img4.svg"
+ ALT="$empty$"></SPAN> and <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img5.svg"
+ ALT="$all$"></SPAN>, representing the empty and universal set,
+    respectively, and
+
+<P>
+</LI>
+<LI><SPAN  CLASS="textit">product bounds</SPAN> representing cartesian products.
+
+<P>
+</LI>
+</UL>
+Some two-dimensional bounds are illustrated in Fig.&nbsp;<A HREF="#fig-bounds"><IMG  ALT="[*]" SRC="crossref.png"></A>. In
+Section&nbsp;<A HREF="#sec-multisparse"><IMG  ALT="[*]" SRC="crossref.png"></A> we introduce a generalization of sparse
+multi-dimensional bounds, where the bound is embedded into a
+higher-dimensional space where it constrains certain dimensions. These
+embedded sparse bounds enables a considerably more precise handling of
+bounds for multi-dimensional sparse arrays.
+
+<P>
+The HERO-ML bounds form a <SPAN  CLASS="textit">complete
+  lattice</SPAN>&nbsp;[#!ProgramAnalysis:Book!#], which means that they have certain
+mathematical properties. Indeed there is a strong relation to static program
+analysis, and the computation of bounds can be seen as a kind of run-time
+value analysis. Some two-dimensional bounds are illustrated in
+Fig.&nbsp;<A HREF="#fig-bounds"><IMG  ALT="[*]" SRC="crossref.png"></A>.
+
+<P>
+
+<DIV class="CENTER"><A ID="fig-bounds"></A><A ID="1220"></A>
+<TABLE>
+<CAPTION class="BOTTOM"><STRONG>Figure:</STRONG>
+A dense product bound, a product of a dense and a sparse bound, a
+  product of two sparse bounds, and a 2D sparse bound. (Adapted
+  from&nbsp;[#!DFH-HW2000!#].)</CAPTION>
+<TR><TD><DIV class="CENTER">
+<IMG
+ STYLE="height: 15.51ex; vertical-align: -0.12ex; " SRC="img6.svg"
+ ALT="\includegraphics[scale=0.9, clip]{2d-bounds-cropped.pdf}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+There are three major kinds of array expressions in HERO-ML:
+
+<UL>
+<LI><SPAN  CLASS="textit">explicit array expressions</SPAN>, which define arrays through
+    listing their elements,
+
+<P>
+</LI>
+<LI><SPAN  CLASS="textit">array comprehensions</SPAN>, which define arrays with explicit
+    bounds where the elements are computed according to some rule, and
+
+<P>
+</LI>
+<LI><SPAN  CLASS="textit">forall expressions</SPAN>, which are similar to array comprehensions
+    but have their bounds defined implicitly from the syntax of the
+    expression. This construct is inspired by lambda abstraction in the
+    lambda calculus, and the rules for computing bounds are designed to
+    (over)approximate the domain of the partial function defined by the
+    forall exoression. Forall expressions, and the rules for computing their
+    bounds, are further described in Section&nbsp;<A HREF="#sec-forall-bounds"><IMG  ALT="[*]" SRC="crossref.png"></A>. (A
+    variation of <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img7.svg"
+ ALT="$forall$"></SPAN> expressions was also present in Data Field
+    Haskell. See&nbsp;[#!Holmerin-Xjobb!#] for details.)
+
+<P>
+</LI>
+</UL>
+In addition there is a masked concurrent assignment of arrays, where array
+elements that fulfil some condition are concurrently updated. Together,
+these array constructs can express basically all data parallel constructs
+found in the literature.
+
+<P>
+An array access out of bounds returns an undefined value, which we denote
+&ldquo;<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img8.svg"
+ ALT="$?$"></SPAN>&rdquo;. However also array elements within bounds may hold this value. This
+is since bounds may be over-approximated: in particular, the rules for
+deriving implicit bounds for forall expressions may produce such
+bounds. This has some consequences for collective operations such as
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img9.svg"
+ ALT="$reduce$"></SPAN> and <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img10.svg"
+ ALT="$scan$"></SPAN>, which will have to skip such elements.
+&ldquo;<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img8.svg"
+ ALT="$?$"></SPAN>&rdquo; is not accessible at source code level, but HERO-ML has a predicate
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img11.svg"
+ ALT="$isDef$"></SPAN> that tests whether or not its argument is different from &ldquo;<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img8.svg"
+ ALT="$?$"></SPAN>&rdquo;
+(see Section&nbsp;<A HREF="#sec-test-undef"><IMG  ALT="[*]" SRC="crossref.png"></A>).
+
+<P>
+
+<H2><A ID="SECTION00032000000000000000"></A>
+<A ID="sec-ypes"></A><BR>
+Types
+</H2>
+
+<P>
+HERO-ML is a <SPAN  CLASS="textit">strongly typed</SPAN> language (all parts of a program must be
+well-typed for the program to be well-typed). It is <SPAN  CLASS="textit">explicitly typed</SPAN>
+(all declared entities must be given a type). The types are similar to those
+found in ML-like functional languages, such as OCaml or Haskell, but with
+some restrictions.  It has basic types <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img12.svg"
+ ALT="$int$"></SPAN>, <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img13.svg"
+ ALT="$float$"></SPAN>, <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img14.svg"
+ ALT="$bool$"></SPAN>, a polymorhpic
+type <!-- MATH
+ $Array\ \iota\ \alpha$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.50ex; vertical-align: -0.57ex; " SRC="img15.svg"
+ ALT="$Array\ \iota\ \alpha$"></SPAN> for abstract arrays with indices of type <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img16.svg"
+ ALT="$\iota$"></SPAN>
+and elements of type <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img17.svg"
+ ALT="$\alpha$"></SPAN>, and a type <!-- MATH
+ $Bounds\ \iota$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img18.svg"
+ ALT="$Bounds\ \iota$"></SPAN> for bounds over
+indices of type <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img16.svg"
+ ALT="$\iota$"></SPAN>. <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img17.svg"
+ ALT="$\alpha$"></SPAN> can itself be an array data type: thus,
+HERO-ML supports nested arrays. Array indices are either integers (for
+one-dimensional arrays), or tuples of integers (for multi-dimensional
+arrays). There is, however, no full-fledged data type for tuples: they
+appear only as indices to arrays, within expressions defining bounds, or as
+arguments to builtin functions and operators, see below.
+
+<P>
+HERO-ML is not a full-fledged higher-order language. However, builtin
+functions and operators have function types. Contrary to higher-order
+functional languages these functions are on uncurried form, taking a tuple
+of individual arguments as argument. For instance the operator &ldquo;<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.01ex; vertical-align: -0.31ex; " SRC="img19.svg"
+ ALT="$+$"></SPAN>&rdquo; has
+the type <!-- MATH
+ $(int,int)\to int$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img20.svg"
+ ALT="$(int,int)\to int$"></SPAN>, indicating that it takes two arguments of type
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img12.svg"
+ ALT="$int$"></SPAN> and returns an <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img12.svg"
+ ALT="$int$"></SPAN>. Arithmetic operators are overloaded over the
+numerical types <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img12.svg"
+ ALT="$int$"></SPAN>, and <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img13.svg"
+ ALT="$float$"></SPAN>: thus, for example,&ldquo;<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.01ex; vertical-align: -0.31ex; " SRC="img19.svg"
+ ALT="$+$"></SPAN>&rdquo; also has the
+type <!-- MATH
+ $(float,float)\to float$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img21.svg"
+ ALT="$(float,float)\to float$"></SPAN>. Implicit type conversion is not permitted:
+thus, numerical arguments of different type are not allowed for these
+operators. HERO-ML also has collective array operations <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img9.svg"
+ ALT="$reduce$"></SPAN>, and
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img10.svg"
+ ALT="$scan$"></SPAN>, which are higher-order in that they take a binary function, or
+operator, as an argument.
+
+<P>
+
+<H1><A ID="SECTION00040000000000000000"></A>
+<A ID="sec-spec"></A><BR>
+HERO-ML Syntax
+</H1>
+
+<P>
+We now specify the format of HERO-ML by an abstract syntax. This syntax is
+on syntax-tree level, where the trees are formal expressions, rather than on
+string level. These trees are close to parse trees, but with details
+abstracted away.
+
+<P>
+A HERO-ML program consists of two parts: a set of <SPAN  CLASS="textit">type declarations</SPAN>,
+where each user-defined identifier is given a type, and a <SPAN  CLASS="textit">statement</SPAN>
+that provides the code to be executed:
+<P><!-- MATH
+ \begin{displaymath}
+prog \to typedecls ; s
+\end{displaymath}
+ -->
+</P><DIV CLASS="displaymath">
+<IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img22.svg"
+ ALT="$\displaystyle prog \to typedecls ; s
+$">
+</DIV><P></P>
+Here <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img23.svg"
+ ALT="$typedecls$"></SPAN> is a list of type declarations, and <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img24.svg"
+ ALT="$s$"></SPAN> is a statement as
+defined below. The  syntax for type declarations is given below:
+<P><!-- MATH
+ \begin{displaymath}
+\begin{array}{rcl}
+    typedecls & \to & \Lambda\ |\ typedecl ; typedecls'\\
+    typedecl  & \to & id: type\\
+    type      & \to & int\ |\ float\ |\ bool\ |\ Array\ index\_type\ type'\\
+    index\_type & \to & int\ |\ (int,int)\ |\ (int,int,int) \cdots
+  \end{array}
+\end{displaymath}
+ -->
+</P><DIV CLASS="displaymath">
+<IMG
+ STYLE="height: 11.57ex; vertical-align: -5.11ex; " SRC="img25.svg"
+ ALT="$\displaystyle \begin{array}{rcl}
+typedecls &amp; \to &amp; \Lambda\ \vert\ typedecl ; ...
+...x\_type &amp; \to &amp; int\ \vert\ (int,int)\ \vert\ (int,int,int) \cdots
+\end{array}$">
+</DIV><P></P>
+Here <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img26.svg"
+ ALT="$id$"></SPAN> is an identifier, and <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.34ex; vertical-align: -0.57ex; " SRC="img27.svg"
+ ALT="$type$"></SPAN> stands for the types that can be
+assigned to user-declared entities (program variables in the current version
+of HERO-ML).
+The ellipsis for index types means that we allow <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img28.svg"
+ ALT="$n$"></SPAN>-tuples of <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img12.svg"
+ ALT="$int$"></SPAN> for any
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.05ex; vertical-align: -0.21ex; " SRC="img29.svg"
+ ALT="$n &gt; 1$"></SPAN> as array indices. Thus, HERO-ML has arrays of any (finite)
+dimensionality.
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.05ex; vertical-align: -0.12ex; " SRC="img30.svg"
+ ALT="$\Lambda$"></SPAN> stands for the empty expression (similar to the empty string for
+grammars defining sets of strings).
+
+<P>
+The formats for identifiers, and numeric literals, are given in
+Section&nbsp;<A HREF="#sec-concrete"><IMG  ALT="[*]" SRC="crossref.png"></A>.
+
+<P>
+We now define the statements of HERO-ML. We start with the sequential
+part, which is fairly standard (except that array expressions <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.91ex; vertical-align: -0.57ex; " SRC="img31.svg"
+ ALT="$aexp$"></SPAN>, and
+bounds expressions <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ ALT="$bnd$"></SPAN>, defined later, may appear within &ldquo;scalar&rdquo;
+expressions):
+<DL>
+<DT><STRONG>Integer constant</STRONG></DT>
+<DD><SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img32.svg"
+ ALT="$m$"></SPAN>, <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img28.svg"
+ ALT="$n$"></SPAN>, <SPAN  CLASS="textbf">floating-point constant</SPAN> <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img33.svg"
+ ALT="$c$"></SPAN>
+
+<P>
+</DD>
+<DT><STRONG>Integer variable</STRONG></DT>
+<DD><SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img34.svg"
+ ALT="$i$"></SPAN>, <SPAN  CLASS="textbf">floating-point variable</SPAN> <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img3.svg"
+ ALT="$f$"></SPAN>,
+  <SPAN  CLASS="textbf">boolean variable</SPAN> <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img35.svg"
+ ALT="$b$"></SPAN>
+
+<P>
+</DD>
+<DT><STRONG>Array variable</STRONG></DT>
+<DD><SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img36.svg"
+ ALT="$a$"></SPAN>
+
+<P>
+</DD>
+<DT><STRONG>Bounds variable</STRONG></DT>
+<DD><SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img37.svg"
+ ALT="$d$"></SPAN>
+
+<P>
+</DD>
+<DT><STRONG>&ldquo;Scalar&rdquo; variable</STRONG></DT>
+<DD><!-- MATH
+ $y \to i\ |\ f\ |\ b$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img38.svg"
+ ALT="$y \to i\ \vert\ f\ \vert\ b$"></SPAN>
+
+<P>
+</DD>
+<DT><STRONG>Arithmetic operator</STRONG></DT>
+<DD><!-- MATH
+ $aop \to +\ |\ -\ |\ *\ |\ /$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img39.svg"
+ ALT="$aop \to +\ \vert\ -\ \vert\ *\ \vert\ /$"></SPAN>
+
+<P>
+</DD>
+<DT><STRONG>General <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img28.svg"
+ ALT="$n$"></SPAN>-ary function</STRONG></DT>
+<DD><SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img40.svg"
+ ALT="$fun$"></SPAN>
+
+<P>
+</DD>
+<DT><STRONG>Integer expression</STRONG></DT>
+<DD><P><!-- MATH
+ \begin{displaymath}
+\begin{array}{rcl}
+   iexp & \to & n\ |\  i\ |\ iexp \ aop\ iexp\\
+& | & fun (exp_1,\ldots,exp_n)\ |\ aexp\ index\_exp\\
+\end{array}
+\end{displaymath}
+ -->
+</P><DIV CLASS="displaymath">
+<IMG
+ STYLE="height: 6.02ex; vertical-align: -2.32ex; " SRC="img41.svg"
+ ALT="$\displaystyle \begin{array}{rcl}
+iexp &amp; \to &amp; n\ \vert\ i\ \vert\ iexp \ aop\ iexp\\
+&amp; \vert &amp; fun (exp_1,\ldots,exp_n)\ \vert\ aexp\ index\_exp\\
+\end{array}$">
+</DIV><P></P>
+
+<P>
+</DD>
+<DT><STRONG>Floating-point expression</STRONG></DT>
+<DD><P><!-- MATH
+ \begin{displaymath}
+\begin{array}{rcl}
+      fexp & \to & c\ |\  f\ |\ fexp \ aop\ fexp'\\
+& |   &fun (exp_1,\ldots,exp_n)\ |\ aexp\ index\_exp
+\end{array}
+\end{displaymath}
+ -->
+</P><DIV CLASS="displaymath">
+<IMG
+ STYLE="height: 6.02ex; vertical-align: -2.32ex; " SRC="img42.svg"
+ ALT="$\displaystyle \begin{array}{rcl}
+fexp &amp; \to &amp; c\ \vert\ f\ \vert\ fexp \ aop\ fexp'\\
+&amp; \vert &amp;fun (exp_1,\ldots,exp_n)\ \vert\ aexp\ index\_exp
+\end{array} $">
+</DIV><P></P>
+
+<P>
+</DD>
+<DT><STRONG>Boolean operator</STRONG></DT>
+<DD><!-- MATH
+ $bop \to ||\ |\ \&\&$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img43.svg"
+ ALT="$bop \to \vert\vert\ \vert\ \&amp;\&amp;$"></SPAN>
+
+<P>
+</DD>
+<DT><STRONG>Relational operator</STRONG></DT>
+<DD><!-- MATH
+ $rop \to\ =\ |\ <$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img44.svg"
+ ALT="$rop \to\ =\ \vert\ &lt;$"></SPAN>
+
+<P>
+</DD>
+<DT><STRONG>Boolean expression</STRONG></DT>
+<DD><SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img45.svg"
+ ALT="$bexp$"></SPAN>:
+  <P><!-- MATH
+ \begin{displaymath}
+\begin{array}{rcl}
+    bexp & \to & true\ |\ false\ |\ b\\
+         & | & iexp \ rop\ iexp'\ |\ fexp \ rop\ fexp'\ |\ bexp\ bop\ bexp\\
+& | & fun(exp_1,\ldots,exp_n)\ |\ aexp\ index\_exp
+\end{array}
+\end{displaymath}
+ -->
+</P><DIV CLASS="displaymath">
+<IMG
+ STYLE="height: 8.79ex; vertical-align: -3.72ex; " SRC="img46.svg"
+ ALT="$\displaystyle \begin{array}{rcl}
+bexp &amp; \to &amp; true\ \vert\ false\ \vert\ b\\
+...
+...bexp\\
+&amp; \vert &amp; fun(exp_1,\ldots,exp_n)\ \vert\ aexp\ index\_exp
+\end{array} $">
+</DIV><P></P>
+
+<P>
+</DD>
+<DT><STRONG>&ldquo;Scalar&rdquo; expression</STRONG></DT>
+<DD><!-- MATH
+ $sexp \to iexp\ |\ fexp\ |\ bexp$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img47.svg"
+ ALT="$sexp \to iexp\ \vert\ fexp\ \vert\ bexp$"></SPAN>
+
+<P>
+</DD>
+<DT><STRONG>Expression</STRONG></DT>
+<DD><!-- MATH
+ $exp \to sexp\ |\ aexp\ |\ bnd$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img48.svg"
+ ALT="$exp \to sexp\ \vert\ aexp\ \vert\ bnd$"></SPAN>
+
+<P>
+</DD>
+<DT><STRONG>HERO-ML statements</STRONG></DT>
+<DD><SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img24.svg"
+ ALT="$s$"></SPAN>:
+<P><!-- MATH
+ \begin{displaymath}
+\begin{array}{rcl}
+  s & \to & skip\ |\ y = sexp \\
+    &  |  & s;s'\ |\  if\ bexp\ then\ s\ else\ s'\ |\ while\ bexp\ do\ s\\
+    &  |  &  d = bnd\\
+    &  |  & a\_assign
+\end{array}
+\end{displaymath}
+ -->
+</P><DIV CLASS="displaymath">
+<IMG
+ STYLE="height: 13.19ex; " SRC="img49.svg"
+ ALT="\begin{displaymath}
+\begin{array}{rcl}
+s &amp; \to &amp; skip\ \vert\ y = sexp \\
+&amp; \...
+...do\ s\\
+&amp; \vert &amp; d = bnd\\
+&amp; \vert &amp; a\_assign
+\end{array}\end{displaymath}">
+</DIV><P></P>
+
+<P>
+</DD>
+</DL>
+
+<P>
+We now turn to the array-specific part. We define abstract syntax for
+<SPAN  CLASS="textit">bounds expressions</SPAN>, <SPAN  CLASS="textit">array expressions</SPAN>, and <SPAN  CLASS="textit">array
+  assignments</SPAN>. But first we define the syntax for <SPAN  CLASS="textit">array arguments</SPAN>
+and <SPAN  CLASS="textit">set elements</SPAN>, respectively:
+
+<P>
+<DL>
+<DT><STRONG>Index expressions</STRONG></DT>
+<DD><!-- MATH
+ $index\_exp$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img50.svg"
+ ALT="$index\_exp$"></SPAN>:
+<P><!-- MATH
+ \begin{displaymath}
+\begin{array}{rcl}
+index\_exp & \to & [iexp]\ |\ [iexp_1,\ldots,iexp_m] \\
+\end{array}
+\end{displaymath}
+ -->
+</P><DIV CLASS="displaymath">
+<IMG
+ STYLE="height: 5.44ex; " SRC="img51.svg"
+ ALT="\begin{displaymath}
+\begin{array}{rcl}
+index\_exp &amp; \to &amp; [iexp]\ \vert\ [iexp_1,\ldots,iexp_m] \\
+\end{array}\end{displaymath}">
+</DIV><P></P>
+
+<P>
+</DD>
+<DT><STRONG>Set elements, and -expressions</STRONG></DT>
+<DD><!-- MATH
+ $set\_el\_var$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img52.svg"
+ ALT="$set\_el\_var$"></SPAN>, <!-- MATH
+ $set\_el\_exp$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img53.svg"
+ ALT="$set\_el\_exp$"></SPAN>:
+<P><!-- MATH
+ \begin{displaymath}
+\begin{array}{rcl}
+  set\_el\_var & \to & i\ |\ (i_1,\ldots,i_m) \\
+  set\_el\_exp & \to & iexp\ |\ (iexp_1,\ldots,iexp_m) \\
+\end{array}
+\end{displaymath}
+ -->
+</P><DIV CLASS="displaymath">
+<IMG
+ STYLE="height: 7.64ex; " SRC="img54.svg"
+ ALT="\begin{displaymath}
+\begin{array}{rcl}
+set\_el\_var &amp; \to &amp; i\ \vert\ (i_1,\ldo...
+...exp &amp; \to &amp; iexp\ \vert\ (iexp_1,\ldots,iexp_m) \\
+\end{array}\end{displaymath}">
+</DIV><P></P>
+
+<P>
+</DD>
+<DT><STRONG>Bounds expression</STRONG></DT>
+<DD><SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ ALT="$bnd$"></SPAN>:
+<P><!-- MATH
+ \begin{displaymath}
+\begin{array}{rcl}
+  bnd & \to & empty\ |\ all\ |\ d\
+         |\ iexp..iexp'\ |\ \{set\_el\_exp_1,\ldots, set\_el\_exp_m\}\\
+  & | &  \{ set\_el\_var : bexp \}\ |\ (bnd_1,\ldots,bnd_n)\\
+& | & fun(exp_1,\ldots,exp_n)\ |\ aexp\ index\_exp
+\end{array}
+\end{displaymath}
+ -->
+</P><DIV CLASS="displaymath">
+<IMG
+ STYLE="height: 10.41ex; " SRC="img55.svg"
+ ALT="\begin{displaymath}
+\begin{array}{rcl}
+bnd &amp; \to &amp; empty\ \vert\ all\ \vert\ d\...
+... &amp; fun(exp_1,\ldots,exp_n)\ \vert\ aexp\ index\_exp
+\end{array}\end{displaymath}">
+</DIV><P></P>
+</DD>
+<DT><STRONG>Array expression</STRONG></DT>
+<DD><SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.91ex; vertical-align: -0.57ex; " SRC="img31.svg"
+ ALT="$aexp$"></SPAN>:
+<P><!-- MATH
+ \begin{displaymath}
+\begin{array}{rcl}
+  aexp & \to & a\ |\ [exp\ :\ set\_el\_var\ in\ bnd]\\
+  & | & forall\ set\_el\_var \to exp\ |\ aexp|bnd\ |\ expl\_array\\
+& | & fun(exp_1,\ldots,exp_n)\ |\ aexp\ index\_exp
+\end{array}
+\end{displaymath}
+ -->
+</P><DIV CLASS="displaymath">
+<IMG
+ STYLE="height: 10.41ex; " SRC="img56.svg"
+ ALT="\begin{displaymath}
+\begin{array}{rcl}
+aexp &amp; \to &amp; a\ \vert\ [exp\ :\ set\_el\...
+... &amp; fun(exp_1,\ldots,exp_n)\ \vert\ aexp\ index\_exp
+\end{array}\end{displaymath}">
+</DIV><P></P>
+</DD>
+<DT><STRONG>Explicit array expression</STRONG></DT>
+<DD><!-- MATH
+ $expl\_array$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img57.svg"
+ ALT="$expl\_array$"></SPAN>:
+<P><!-- MATH
+ \begin{displaymath}
+\begin{array}{rcl}
+  db & \to & iexp..iexp'\ |\ iexp..\ |\ ..iexp\\
+  db' & \to & \Lambda\ |\ db\\
+  preamble & \to & \Lambda\ |\ db :\ |\ (db'_1,\ldots,db'_n)\\
+  elist(1) & \to & exp_1,\ldots,exp_k\\
+  elist(n) & \to & elist(n-1);\ldots; elist(n-1);\ n > 1\\
+  expl\_array & \to & [preamble\ elist(n)]\\
+& | & [set\_el\_exp_1 : exp_1, \ldots, set\_el\_exp_n : exp_n]
+\end{array}
+\end{displaymath}
+ -->
+</P><DIV CLASS="displaymath">
+<IMG
+ STYLE="height: 21.52ex; " SRC="img58.svg"
+ ALT="\begin{displaymath}
+\begin{array}{rcl}
+db &amp; \to &amp; iexp..iexp'\ \vert\ iexp..\ \...
+..._el\_exp_1 : exp_1, \ldots, set\_el\_exp_n : exp_n]
+\end{array}\end{displaymath}">
+</DIV><P></P>
+Explicit arrays, as the name suggests, have their elements explicitly
+given. The syntax allows the specification of both dense and sparse arrays,
+also multi-dimensional. Dense arrays are specified through lists of
+elements, which are nested for higher-dimensional arrays. Sparse arrays are
+defined by a list of index/element pairs.
+
+<P>
+</DD>
+<DT><STRONG>Array assignment</STRONG></DT>
+<DD><SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.44ex; vertical-align: -0.57ex; " SRC="img59.svg"
+ ALT="$a\_assign$"></SPAN>:
+<P><!-- MATH
+ \begin{displaymath}
+\begin{array}{rcl}
+  a\_assign & \to &  a\ =\ aexp\\
+  & | &  a\ index\_exp_1 \cdots index\_exp_n\ =\ exp\\
+  & | &  foreach\ set\_el\_var\ in\ bnd\ do\ a\ index\_exp_1 \cdots
+  index\_exp_n\ =\ exp
+\end{array}
+\end{displaymath}
+ -->
+</P><DIV CLASS="displaymath">
+<IMG
+ STYLE="height: 13.65ex; " SRC="img60.svg"
+ ALT="\begin{displaymath}
+\begin{array}{rcl}
+a\_assign &amp; \to &amp; a\ =\ aexp\\
+&amp; \vert...
+...d\ do\ a\ index\_exp_1 \cdots
+index\_exp_n\ =\ exp
+\end{array}\end{displaymath}">
+</DIV><P></P>
+</DD>
+</DL>
+
+<P>
+We now informally describe each new construct for creating bounds, abstract
+arrays, and assignment of such arrays. We also provide examples of their use.
+
+<P>
+
+<P><P><BR>
+
+<P>
+<SPAN  CLASS="textbf">Bounds</SPAN>:
+
+<UL>
+<LI><SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.34ex; vertical-align: -0.57ex; " SRC="img4.svg"
+ ALT="$empty$"></SPAN>, <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img5.svg"
+ ALT="$all$"></SPAN>
+  <DL>
+<DT><STRONG><I>Description:</I></STRONG></DT>
+<DD>corresponds to the empty and universal set, respectively.
+
+<P>
+</DD>
+<DT><STRONG><I>Example:</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">empty</SPAN>, <SPAN  CLASS="texttt">all</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD><P>
+</DD>
+</DL>
+
+<P>
+</LI>
+<LI><SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img37.svg"
+ ALT="$d$"></SPAN>
+
+<P>
+<DL>
+<DT><STRONG><I>Description:</I></STRONG></DT>
+<DD>variable holding an already evaluated bound.
+
+<P>
+</DD>
+<DT><STRONG><I>Example:</I></STRONG></DT>
+<DD><P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD><P>
+</DD>
+</DL>
+
+<P>
+</LI>
+<LI><!-- MATH
+ $iexp..iexp'$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.65ex; vertical-align: -0.57ex; " SRC="img61.svg"
+ ALT="$iexp..iexp'$"></SPAN>
+
+<P>
+<DL>
+<DT><STRONG><I>Description:</I></STRONG></DT>
+<DD>an interval bound (also called <SPAN  CLASS="textit">dense bound</SPAN>).
+
+<P>
+</DD>
+<DT><STRONG><I>Example:</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">1..10</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>denotes the interval from <SPAN  CLASS="texttt">1</SPAN> to <SPAN  CLASS="texttt">10</SPAN>.
+
+<P>
+</DD>
+</DL>
+
+<P>
+</LI>
+<LI><!-- MATH
+ $\{set\_el_1,\ldots, set\_el_m\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img62.svg"
+ ALT="$\{set\_el_1,\ldots, set\_el_m\}$"></SPAN>
+
+<P>
+<DL>
+<DT><STRONG><I>Description:</I></STRONG></DT>
+<DD>a finite, possibly irregular set, called a
+    <SPAN  CLASS="textit">sparse bound</SPAN>.
+
+<P>
+</DD>
+<DT><STRONG><I>Example:</I></STRONG></DT>
+<DD><code>{(0,1),(3,2),(0,-1),(2,2)}</code>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>a sparse two-dimensional bound with four elements.
+
+<P>
+</DD>
+</DL>
+
+<P>
+</LI>
+<LI><!-- MATH
+ $\{ set\_el\_var : bexp \}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img63.svg"
+ ALT="$\{ set\_el\_var : bexp \}$"></SPAN>
+
+<P>
+<DL>
+<DT><STRONG><I>Description:</I></STRONG></DT>
+<DD>a so-called <SPAN  CLASS="textit">predicate bound</SPAN>, a possibly
+    infinite set defined by a predicate.
+
+<P>
+</DD>
+<DT><STRONG><I>Example:</I></STRONG></DT>
+<DD><code>{(i,j) : i+j &gt; 0}</code>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>the set of all <SPAN  CLASS="texttt">(i,j)</SPAN> such that
+    <SPAN  CLASS="texttt">i+j &gt; 0</SPAN>.
+
+<P>
+</DD>
+</DL>
+
+<P>
+</LI>
+<LI><!-- MATH
+ $(bnd_1,\ldots,bnd_n)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img64.svg"
+ ALT="$(bnd_1,\ldots,bnd_n)$"></SPAN>
+
+<P>
+<DL>
+<DT><STRONG><I>Description:</I></STRONG></DT>
+<DD><SPAN  CLASS="textit">cartesian product bound</SPAN> formed from <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img28.svg"
+ ALT="$n$"></SPAN>
+    bounds.
+
+<P>
+</DD>
+<DT><STRONG><I>Example:</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">(1..10,1..25)</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>the 2-D bound for a <!-- MATH
+ $10\times 25$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.15ex; vertical-align: -0.31ex; " SRC="img65.svg"
+ ALT="$10\times 25$"></SPAN> dense matrix,
+    formed from two 1-D bounds.
+
+<P>
+</DD>
+</DL>
+
+<P>
+</LI>
+<LI><!-- MATH
+ $aexp\ index\_exp$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img66.svg"
+ ALT="$aexp\ index\_exp$"></SPAN>
+
+<P>
+<DL>
+<DT><STRONG><I>Description:</I></STRONG></DT>
+<DD>access of an element in an array of bounds
+
+<P>
+</DD>
+<DT><STRONG><I>Example:</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">[i..i+5 : i in 1..10][3]</SPAN> <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ ALT="$=$"></SPAN> <SPAN  CLASS="texttt">3..8</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD><P>
+</DD>
+</DL>
+
+<P>
+</LI>
+</UL>
+
+<P>
+In addition there are a number of functions that return bounds. See
+Section&nbsp;<A HREF="#sec-function"><IMG  ALT="[*]" SRC="crossref.png"></A>.
+
+<P>
+
+<P><P><BR>
+
+<P>
+<SPAN  CLASS="textbf">Abstract Arrays</SPAN>:
+
+<UL>
+<LI><SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img36.svg"
+ ALT="$a$"></SPAN>
+
+<P>
+<DL>
+<DT><STRONG><I>Description:</I></STRONG></DT>
+<DD>array variable holding an already evaluated
+    array.
+
+<P>
+</DD>
+<DT><STRONG><I>Example:</I></STRONG></DT>
+<DD><P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD><P>
+</DD>
+</DL>
+
+<P>
+</LI>
+<LI><!-- MATH
+ $[exp\ :\ set\_el\_var\ in\ bnd]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img68.svg"
+ ALT="$[exp\ :\ set\_el\_var\ in\ bnd]$"></SPAN>
+
+<P>
+<DL>
+<DT><STRONG><I>Description:</I></STRONG></DT>
+<DD>array comprehension (definition of array with
+    explicit bound).
+
+<P>
+</DD>
+<DT><STRONG><I>Example:</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">[2*i : i in 1..10]</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>array with bound <SPAN  CLASS="texttt">1..10</SPAN>, and elements
+    <SPAN  CLASS="texttt">2*i</SPAN>.
+
+<P>
+</DD>
+</DL>
+
+<P>
+</LI>
+<LI><!-- MATH
+ $forall\ set\_el\_var \to exp$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img69.svg"
+ ALT="$forall\ set\_el\_var \to exp$"></SPAN>
+
+<P>
+<DL>
+<DT><STRONG><I>Description:</I></STRONG></DT>
+<DD>array definition with implicit bounds, and
+    syntax similar to lambda-abstraction. (Rules for how to compute the
+    bounds are given in Section&nbsp;<A HREF="#sec-forall-bounds"><IMG  ALT="[*]" SRC="crossref.png"></A>.)
+
+<P>
+</DD>
+<DT><STRONG><I>Example:</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">forall i -&gt; a[i] + b[i]</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>elementwise addition of <SPAN  CLASS="texttt">a</SPAN> and
+    <SPAN  CLASS="texttt">b</SPAN>, computing the bound from those of <SPAN  CLASS="texttt">a</SPAN> and <SPAN  CLASS="texttt">b</SPAN>.
+
+<P>
+</DD>
+</DL>
+
+<P>
+</LI>
+<LI><!-- MATH
+ $aexp \, | \, bnd$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img70.svg"
+ ALT="$aexp \, \vert \, bnd$"></SPAN>
+
+<P>
+<DL>
+<DT><STRONG><I>Description:</I></STRONG></DT>
+<DD>subarray of <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.91ex; vertical-align: -0.57ex; " SRC="img31.svg"
+ ALT="$aexp$"></SPAN> defined by <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ ALT="$bnd$"></SPAN>.
+
+<P>
+</DD>
+<DT><STRONG><I>Example:</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">a | 1..10</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>the subarray of <SPAN  CLASS="texttt">a</SPAN> from <SPAN  CLASS="texttt">1</SPAN> to
+    <SPAN  CLASS="texttt">10</SPAN>.
+
+<P>
+</DD>
+</DL>
+
+<P>
+</LI>
+<LI><!-- MATH
+ $aexp\ index\_exp$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img66.svg"
+ ALT="$aexp\ index\_exp$"></SPAN>
+
+<P>
+<DL>
+<DT><STRONG><I>Description:</I></STRONG></DT>
+<DD>access of an element in a possibly nested array
+    of arrays.
+
+<P>
+</DD>
+<DT><STRONG><I>Example:</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">a[3]</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>selection of element three, which is an array,
+    from an array of arrays.
+
+<P>
+</DD>
+</DL>
+
+<P>
+</LI>
+<LI><!-- MATH
+ $[preamble\ elist(n)]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img71.svg"
+ ALT="$[preamble\ elist(n)]$"></SPAN>
+
+<P>
+<DL>
+<DT><STRONG><I>Description:</I></STRONG></DT>
+<DD>dense, possibly multidimensional, explicit array
+    expression. &ldquo;<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img72.svg"
+ ALT="$preamble$"></SPAN>&rdquo; specifies the (possibly multi-dimensional)
+    dense bounds. Bounds can be omitted, and then defaults to a bound with
+    lower limit <SPAN CLASS="MATH">0</SPAN>. &ldquo;<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img73.svg"
+ ALT="$elist(n)$"></SPAN>&rdquo; specifies an <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img28.svg"
+ ALT="$n$"></SPAN>-dimensional array, and
+    it is a possibly nested, semicolon-separated list of lists where the
+    lowest level specifies the array elements in comma-separated lists.
+
+<P>
+</DD>
+<DT><STRONG><I>Example 1:</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">[2.. : 1,3,2]</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>a dense one-dimensional array with bound
+    <SPAN  CLASS="texttt">2..4</SPAN>, and three elements <SPAN  CLASS="texttt">1</SPAN>, <SPAN  CLASS="texttt">3</SPAN>,
+    <SPAN  CLASS="texttt">2</SPAN>. Elements are explicitly given, hence the name.
+
+<P>
+</DD>
+<DT><STRONG><I>Example 2:</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">[..4 : 1,3,2]</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>same array as above, but specified through the
+    upper limit for the interval. 
+
+<P>
+</DD>
+<DT><STRONG><I>Example 3:</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">[1,3,2]</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>an array with the same elements as above, but
+     bound <SPAN  CLASS="texttt">0..2</SPAN> (similar to an array in C).
+
+<P>
+</DD>
+<DT><STRONG><I>Example 4:</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">[(1..2,1..3) : 1,2,3; 4,5,6;]</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>a 2D-array (matrix) with rows <SPAN  CLASS="texttt">1,2,3</SPAN>, and
+    <SPAN  CLASS="texttt">4,5,6</SPAN>. (The last semi-colon can be dropped.)
+
+<P>
+</DD>
+<DT><STRONG><I>Example 5:</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">[1,2,3; 4,5,6;]</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>a 2D-array like in Example 4, but with
+    default bounds <SPAN  CLASS="texttt">(0..1,0..2)</SPAN>.
+
+<P>
+</DD>
+<DT><STRONG><I>Example 6:</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">[(„98..100) : 1,2,3; 4,5,6;; 7,8,9; 10,11,12;; 13,14,15; 16,17,18;;]</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>a 3D-array with bounds
+    <SPAN  CLASS="texttt">(0..2,0..1,98..100)</SPAN>. (The two first are default bounds.) If we
+    name the array &ldquo;<SPAN  CLASS="texttt">A</SPAN>&rdquo;, then <SPAN  CLASS="texttt">A[1,0,99] = 8</SPAN>.
+
+<P>
+</DD>
+</DL>
+
+<P>
+</LI>
+<LI><!-- MATH
+ $[set\_el\_exp_1 : exp_1, \ldots, set\_el\_exp_n : exp_n]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img74.svg"
+ ALT="$[set\_el\_exp_1 : exp_1, \ldots, set\_el\_exp_n : exp_n]$"></SPAN>
+
+<P>
+<DL>
+<DT><STRONG><I>Description:</I></STRONG></DT>
+<DD>explicit sparse array expression.
+
+<P>
+</DD>
+<DT><STRONG><I>Example:</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">[(1,1):4.7, (2,3):0.01, (3,5):3.14]</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>a sparse two-dimensional array with bound
+    <SPAN  CLASS="texttt">{(1,1), (2,3), 3,5)}</SPAN>, and three elements <SPAN  CLASS="texttt">4.7</SPAN>,
+    <SPAN  CLASS="texttt">0.01</SPAN>, <SPAN  CLASS="texttt">3.14</SPAN>. Like for dense explicit arrays bound and
+    elements are explicitly given, hence the name. It is an error to define
+    the value for the same index more than once.
+
+<P>
+</DD>
+</DL>
+
+<P>
+</LI>
+</UL>
+
+<P>
+In addition there are a number of functions that return arrays. See
+Section&nbsp;<A HREF="#sec-function"><IMG  ALT="[*]" SRC="crossref.png"></A>.
+
+<P>
+
+<P><P><BR>
+
+<P>
+<SPAN  CLASS="textbf">Abstract Array Assignments</SPAN>:
+
+<UL>
+<LI><!-- MATH
+ $a\ =\ aexp$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.91ex; vertical-align: -0.57ex; " SRC="img75.svg"
+ ALT="$a\ =\ aexp$"></SPAN>
+
+<P>
+<DL>
+<DT><STRONG><I>Description:</I></STRONG></DT>
+<DD>creates a new abstract array by evaluating
+    <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.91ex; vertical-align: -0.57ex; " SRC="img31.svg"
+ ALT="$aexp$"></SPAN>, and sets <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img36.svg"
+ ALT="$a$"></SPAN> to hold it.
+
+<P>
+</DD>
+<DT><STRONG><I>Example:</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">a = [2*i : i in 1..10]</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>sets <SPAN  CLASS="texttt">a</SPAN> to the new array defined by the
+    array expression.
+
+<P>
+</DD>
+</DL>
+
+<P>
+</LI>
+<LI><!-- MATH
+ $a\ index\_exp_1 \cdots index\_exp_n\ =\ exp$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img76.svg"
+ ALT="$a\ index\_exp_1 \cdots index\_exp_n\ =\ exp$"></SPAN>
+
+<P>
+<DL>
+<DT><STRONG><I>Description:</I></STRONG></DT>
+<DD>Assignment of an array element (including
+    assigning an array within a nested array).
+
+<P>
+</DD>
+<DT><STRONG><I>Example:</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">a[j] = [2*i : i in 1..10]</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>sets <SPAN  CLASS="texttt">a[j]</SPAN> to the new array defined by the
+    array expression. (Here, <SPAN  CLASS="texttt">a</SPAN> is an array of arrays.)
+
+<P>
+</DD>
+</DL>
+
+<P>
+</LI>
+<LI><!-- MATH
+ $foreach\ set\_el\_var\ in\ bnd\ do\ a\ index\_exp_1 \cdots index\_exp_n\ =\ exp$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img77.svg"
+ ALT="$foreach\ set\_el\_var\ in\ bnd\ do\ a\ index\_exp_1 \cdots index\_exp_n\ =\ exp$"></SPAN>
+
+<P>
+<DL>
+<DT><STRONG><I>Description:</I></STRONG></DT>
+<DD>destructive, masked update where
+    <!-- MATH
+ $a\ index\_exp_1 \cdots index\_exp_n$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img78.svg"
+ ALT="$a\ index\_exp_1 \cdots index\_exp_n$"></SPAN> is set to <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.91ex; vertical-align: -0.57ex; " SRC="img79.svg"
+ ALT="$exp$"></SPAN> for all values of
+    <!-- MATH
+ $set\_el\_var$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img52.svg"
+ ALT="$set\_el\_var$"></SPAN> that belong to <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ ALT="$bnd$"></SPAN> and where <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.91ex; vertical-align: -0.57ex; " SRC="img79.svg"
+ ALT="$exp$"></SPAN> is defined. Note
+    that if <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.05ex; vertical-align: -0.21ex; " SRC="img29.svg"
+ ALT="$n &gt; 1$"></SPAN> or <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.05ex; vertical-align: -0.21ex; " SRC="img80.svg"
+ ALT="$m&gt;1$"></SPAN> then the corresponding array is nested.
+
+<P>
+</DD>
+<DT><STRONG><I>Example (not nested):</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">foreach i in 1..10 do x[i+1] =
+    y[i-1]</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>set <SPAN  CLASS="texttt">x[i+1]</SPAN> to <SPAN  CLASS="texttt">y[i-1]</SPAN> for all
+    <SPAN  CLASS="texttt">i</SPAN> in <SPAN  CLASS="texttt">1..10</SPAN> where <SPAN  CLASS="texttt">y[i-1]</SPAN> is defined.
+
+<P>
+</DD>
+<DT><STRONG><I>Example (nested):</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">foreach i in 1..10 do x[i][i+1] =
+    y[3][i-1]</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>set <SPAN  CLASS="texttt">x[i][i+1]</SPAN> to <SPAN  CLASS="texttt">y[3][i-1]</SPAN> for all
+    <SPAN  CLASS="texttt">i</SPAN> in <SPAN  CLASS="texttt">1..10</SPAN> where <SPAN  CLASS="texttt">y[3][i-1]</SPAN> is defined.
+
+<P>
+</DD>
+<DT><STRONG><I>Note:</I></STRONG></DT>
+<DD>it might be that the same element in the left-hand side
+    is targeted by the right-hand side for more than one value of
+    <SPAN  CLASS="texttt">i</SPAN>. This implies a write conflict, and the value of the targeted
+    array element is then non-deterministically set to one of the values
+    written there. An error also occurs if, for some <SPAN  CLASS="texttt">i</SPAN>, the target
+    address for the left-hand side is out of bounds.
+
+<P>
+</DD>
+<DT><STRONG><I>Example (write conflict):</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">foreach i in 1..10 do x[1] =
+    y[i]</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>here there is an attempt to write several
+    elements of <SPAN  CLASS="texttt">y</SPAN> to <SPAN  CLASS="texttt">x[1]</SPAN>.
+
+<P>
+</DD>
+<DT><STRONG><I>Example (write out of bounds):</I></STRONG></DT>
+<DD><SPAN  CLASS="texttt">foreach i in 1..10 do
+    x[i] = y[i]</SPAN>, where <SPAN  CLASS="texttt">bound(x)</SPAN> <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ ALT="$=$"></SPAN> <SPAN  CLASS="texttt">1..9</SPAN>
+
+<P>
+</DD>
+<DT><STRONG><I>Explanation:</I></STRONG></DT>
+<DD>if <SPAN  CLASS="texttt">y[10]</SPAN> is defined then there is an
+    attempt to write it to <SPAN  CLASS="texttt">x[10]</SPAN>, which is out of bounds.
+
+<P>
+</DD>
+</DL>
+
+<P>
+</LI>
+</UL>
+
+<P>
+
+<H2><A ID="SECTION00041000000000000000"></A>
+  <A ID="sec-concrete"></A><BR>
+HERO-ML Concrete Syntax
+</H2>
+
+<P>
+We now address the most relevant aspects of the concrete syntax of HERO-ML that either differ from
+or are left unspecified in the abstract syntax used throughout the rest of this document.
+To begin with, the part of HERO-ML dealing with scalar computations mostly adheres to the
+&ldquo;standard&rdquo; syntax rules found in most conventional languages such as C.
+Specifically this means that infix notation is used for the arithmetic, relational, and logical
+operators <SPAN  CLASS="texttt">+</SPAN>, <SPAN  CLASS="texttt">-</SPAN>, <SPAN  CLASS="texttt">*</SPAN>, <SPAN  CLASS="texttt">/</SPAN>, <SPAN  CLASS="texttt">%</SPAN> (integer remainder), <SPAN  CLASS="texttt">;</SPAN>SPMlt;, <SPAN  CLASS="texttt">&lt;=</SPAN> and so on,
+and that these follow the usual operator precedence and associativity rules.
+Also, integer, floating-point, and boolean literals as well as variable names all follow standard
+formats, with the exception that variable names are allowed to include a trailing sequence of single
+quotes, as in, e.g., <SPAN  CLASS="texttt">x'</SPAN> and <SPAN  CLASS="texttt">y&rdquo;</SPAN>, which is somewhat less conventional.
+
+<P>
+The language only defines two specific infix operators for bounds and arrays, and these are the
+&ldquo;<SPAN  CLASS="texttt">|</SPAN>&rdquo; operator used to perform &ldquo;array slicing&rdquo;, and the double-dot operator &ldquo;<SPAN  CLASS="texttt">..</SPAN>&rdquo; used to
+specify dense bounds.
+Insofar as these operators need precedences and associativities to resolve syntactical ambiguities,
+these have mostly been chosen in the natural way given the type rules of the language.
+For example, for an ambiguous expression like <!-- MATH
+ $arr \mathbin|bnd_1 \mathbin|bnd_2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img81.svg"
+ ALT="$arr \mathbin\vert bnd_1 \mathbin\vert bnd_2$"></SPAN>, only the interpretation
+<!-- MATH
+ $(arr \mathbin|bnd_1) \mathbin|bnd_2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img82.svg"
+ ALT="$(arr \mathbin\vert bnd_1) \mathbin\vert bnd_2$"></SPAN> makes sense, since the alternative interpretation
+<!-- MATH
+ $arr \mathbin|(bnd_1 \mathbin|bnd_2)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img83.svg"
+ ALT="$arr \mathbin\vert(bnd_1 \mathbin\vert bnd_2)$"></SPAN> would give rise to a type error in the second slicing operation.
+However, one true source of ambiguity is when a <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img7.svg"
+ ALT="$forall$"></SPAN> expression is immediately followed by an
+array slicing operation.
+For example, the expression <!-- MATH
+ $forall\ i \rightarrow arr[i] \mathbin|bnd$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img84.svg"
+ ALT="$forall\ i \rightarrow arr[i] \mathbin\vert bnd$"></SPAN> could be interpreted either as
+<!-- MATH
+ $(forall\ i \rightarrow arr[i]) \mathbin|bnd$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img85.svg"
+ ALT="$(forall\ i \rightarrow arr[i]) \mathbin\vert bnd$"></SPAN> or as <!-- MATH
+ $forall\ i \rightarrow (arr[i] \mathbin|bnd)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img86.svg"
+ ALT="$forall\ i \rightarrow (arr[i] \mathbin\vert bnd)$"></SPAN>,
+where the second variant can make sense if <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img87.svg"
+ ALT="$arr$"></SPAN> is an array of arrays.
+This ambiguity has been resolved in favor of the first variant, as using the <SPAN  CLASS="texttt">|</SPAN> operator to slice
+the result of a <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img7.svg"
+ ALT="$forall$"></SPAN> expression should be the more common use case.
+In the case of nested forall expressions followed by a slicing operation,
+<!-- MATH
+ $forall\ i \rightarrow forall\ j \rightarrow \ldots \mathbin|bnd$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img88.svg"
+ ALT="$forall\ i \rightarrow forall\ j \rightarrow \ldots \mathbin\vert bnd$"></SPAN>, an ambiguity arises as to which
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img7.svg"
+ ALT="$forall$"></SPAN> expression the slicing should be attached to.
+Analogously to how the classical &ldquo;dangling else&rdquo; problem is commonly resolved, HERO-ML lets this
+&ldquo;dangling slice&rdquo; be attached to the rightmost forall expression.
+
+<P>
+Similarly to some languages such as Python and F#, HERO-ML is sensitive to how the code is indented
+to allow for a more lightweight syntax, where statements and variable declarations can be terminated
+with simple line breaks as opposed to explicit characters like semicolons, and the block structure
+of the program can be expressed by changes in indentation instead of parentheses or special
+keywords.
+At the beginning of each new block&mdash;that is, after the &ldquo;do&rdquo; keyword in a while statement or after
+the &ldquo;then&rdquo; and &ldquo;else&rdquo; keywords in an if-else statement&mdash;the first statement to appear sets a
+base indentation for the rest of the block.
+This first statement, which is allowed to be on the same line as the preceding keyword, must be at
+least one character position to the right of the indentation of the surrounding block, otherwise the
+block is considered empty.
+Then the indentation of each subsequent line of code (ignoring blank lines) is compared against the
+block's base indentation, and the following version of the &ldquo;offside rule&rdquo; is applied:
+
+<UL>
+<LI>If a line starts at a column number that coincides with the current indentation, then it is
+considered the beginning of a new statement inside the current code block.
+This is as if an invisible semicolon character had appeared to mark the end of the statement on the
+previous line.
+It is a syntax error, of course, if the statement on the previous line was not syntactically
+complete.
+
+<P>
+</LI>
+<LI>If the new line starts strictly to the right of the indentation, then it is instead counted as
+a continuation of the previous line, as if no line break had appeared at all.
+This way long statements can be split over multiple lines by having the continuation lines be
+indented relative to the first line.
+
+<P>
+</LI>
+<LI>If a line starts strictly to the left of the current indentation, then this marks the
+termination of the current code block (and of the previous statement).
+The same rules are then applied again to the same line but in the surrounding block and relative to
+that block's base indentation.
+Note that this can lead to the closing of multiple nested blocks at the same time.
+</LI>
+</UL>
+
+<P>
+Mainly the same principles also apply to the global scope of the program, where the first non-blank
+line in the program sets the indentation of the global scope.
+However, an exception to the last rule above applies if the base indentation is non-zero, as there
+is no surrounding block to exit to in this case.
+Then the base indentation is instead simply adjusted to be the same as that of the &ldquo;offside&rdquo; line
+from that point on.
+
+<P>
+An exception is also made for expressions enclosed in parentheses (including square brackets and
+curly braces).
+As there are no statements or declarations inside of the parentheses to delimit, the indentation
+rules are simply suspended there, up to and including the closing parenthesis, meaning that all
+indentation and line breaks are ignored altogether.
+The main motivation for this is to allow a more liberal use of indentation and line breaking when
+formatting explicit matrix expressions in a program.
+Finally, the syntax allows for semicolons as an alternative way to delimit statements, which makes
+it possible to put multiple statements on the same line.
+
+<P>
+
+<H1><A ID="SECTION00050000000000000000"></A>
+  <A ID="sec-function"></A><BR>
+HERO-ML Functions
+</H1>
+
+<P>
+The HERO-ML grammar has a case <!-- MATH
+ $fun(exp_1,\ldots,exp_n)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img89.svg"
+ ALT="$fun(exp_1,\ldots,exp_n)$"></SPAN> for functions. This
+case is matched by a number of functions in HERO-ML, where some provide
+important features. We therefore give an account here for the functions in
+HERO-ML.
+
+<P>
+
+<H2><A ID="SECTION00051000000000000000">
+Numerical Functions</A>
+</H2>
+
+<P>
+HERO-ML will come with a set of numerical functions, where the argument and
+result types are numerical. The exact selection of functions is not decided
+yet, but will be very much standard including standard scientific functions.
+
+<P>
+
+<H2><A ID="SECTION00052000000000000000">
+Boolean Functions, and Operators</A>
+</H2>
+
+<P>
+<!-- MATH
+ $not : bool \to bool$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img90.svg"
+ ALT="$not : bool \to bool$"></SPAN> provides logical negation.
+
+<P>
+
+<P><BR>
+
+<P>
+The boolean operators <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img91.svg"
+ ALT="$\vert\vert$"></SPAN>, <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img92.svg"
+ ALT="$\&amp;\&amp;$"></SPAN> have a semantics where their
+arguments are evaluated from left to right, and the evaluation is stopped as
+soon as the outcome is known. Thus, they are <SPAN  CLASS="textit">non-strict</SPAN> in their
+second argument since it is not always evaluated. (Non-strict here means
+that the function may return a defined value even if the argument is
+undefined.)
+
+<P>
+
+<H2><A ID="SECTION00053000000000000000">
+Conditional Function</A>
+</H2>
+
+<P>
+HERO-ML has a conditional function <!-- MATH
+ $if : (bool,\alpha,\alpha)\to\alpha$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img93.svg"
+ ALT="$if : (bool,\alpha,\alpha)\to\alpha$"></SPAN>,
+where <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img17.svg"
+ ALT="$\alpha$"></SPAN> is a type variable.
+
+<P>
+
+<P><BR>
+
+<P>
+
+<SPAN  CLASS="textit">Example</SPAN>: <SPAN  CLASS="texttt">if(x &gt; 0,5,7)</SPAN> evaluates to <SPAN  CLASS="texttt">5</SPAN> if <SPAN  CLASS="texttt">x
+    &gt; 0</SPAN> in the current environment, and to <SPAN  CLASS="texttt">7</SPAN> otherwise.
+
+<P>
+
+<H2><A ID="SECTION00054000000000000000"></A>
+<A ID="sec-test-undef"></A><BR>
+Test for Undefined Value
+</H2>
+
+<P>
+<!-- MATH
+ $isDef : \alpha \to bool$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img94.svg"
+ ALT="$isDef : \alpha \to bool$"></SPAN> tests whether or not its argument is different
+from the undefined value &ldquo;<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img8.svg"
+ ALT="$?$"></SPAN>&rdquo;.
+
+<P>
+
+<P><BR>
+
+<P>
+
+<SPAN  CLASS="textit">Examples</SPAN>: <SPAN  CLASS="texttt">isDef(17)</SPAN> <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ ALT="$=$"></SPAN> <SPAN  CLASS="texttt">true</SPAN>, <SPAN  CLASS="texttt">isDef(?)</SPAN> <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ ALT="$=$"></SPAN>
+<SPAN  CLASS="texttt">false</SPAN>.
+
+<P>
+
+<H2><A ID="SECTION00055000000000000000">
+Functions on Abstract Arrays</A>
+</H2>
+
+<P>
+<!-- MATH
+ $bound : (Array\ \iota\ \alpha) \to Bound\ \iota$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img95.svg"
+ ALT="$bound : (Array\ \iota\ \alpha) \to Bound\ \iota$"></SPAN>. <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img96.svg"
+ ALT="$bound(a)$"></SPAN> extracts the
+bound from the array <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img36.svg"
+ ALT="$a$"></SPAN>.
+
+<P>
+
+<P><BR>
+
+<P>
+
+<SPAN  CLASS="textit">Example</SPAN>: <SPAN  CLASS="texttt">bound([2..4 : 1,3,2])</SPAN> <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ ALT="$=$"></SPAN> <SPAN  CLASS="texttt">2..4</SPAN>.
+
+<P>
+
+<P><BR>
+
+<P>
+
+<!-- MATH
+ $reduce : ((\alpha,\alpha) \to \alpha, Array\ \iota\ \alpha) \to \alpha$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img97.svg"
+ ALT="$reduce : ((\alpha,\alpha) \to \alpha, Array\ \iota\ \alpha) \to \alpha$"></SPAN>.
+<!-- MATH
+ $reduce(f,a)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img98.svg"
+ ALT="$reduce(f,a)$"></SPAN> &ldquo;sums&rdquo; the elements in the array <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img36.svg"
+ ALT="$a$"></SPAN> using the binary
+function/operator <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img3.svg"
+ ALT="$f$"></SPAN>.
+
+<P>
+
+<P><BR>
+
+<P>
+
+<SPAN  CLASS="textit">Example</SPAN>: <SPAN  CLASS="texttt">reduce(+,[2..4 : 1,3,2])</SPAN> <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ ALT="$=$"></SPAN> <SPAN  CLASS="texttt">1 + 3 + 2</SPAN> <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ ALT="$=$"></SPAN>
+<SPAN  CLASS="texttt">6</SPAN>.
+
+<P>
+
+<P><BR>
+
+<P>
+
+<!-- MATH
+ $scan : ((\alpha,\alpha) \to \alpha, Array\ \iota\ \alpha) \to Array\ \iota\ \alpha$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img99.svg"
+ ALT="$scan : ((\alpha,\alpha) \to \alpha, Array\ \iota\ \alpha) \to Array\ \iota\ \alpha$"></SPAN>.
+Like <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img9.svg"
+ ALT="$reduce$"></SPAN>, but computes an array with all the&ldquo;partial sums&rdquo;. The bound
+is the same as for <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img36.svg"
+ ALT="$a$"></SPAN>, and the &ldquo;partial sums&rdquo; are computed in the
+lexicographic order over <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img96.svg"
+ ALT="$bound(a)$"></SPAN>.
+
+<P>
+
+<P><BR>
+
+<P>
+
+<SPAN  CLASS="textit">Example</SPAN>: <SPAN  CLASS="texttt">scan(+,[2..4 : 1,3,2])</SPAN> <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ ALT="$=$"></SPAN>
+<SPAN  CLASS="texttt">[2..4 : 1,4,6]</SPAN>
+
+<P>
+
+<H2><A ID="SECTION00056000000000000000">
+Functions on Bounds</A>
+</H2>
+
+<P>
+HERO-ML has many functions on bounds. Many of these are used to implement
+the implicit derivation of bounds that takes place when array-valued
+expressions, such as <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img7.svg"
+ ALT="$forall$"></SPAN>-expressions, are evaluated. They are exposed
+at the user level primarily to allow the manual tailoring of bounds in cases
+when the implicit bounds derivation does not yield a satisfactory
+result. The functions can also be seen as providing an <SPAN  CLASS="textit">interface</SPAN> for
+bounds: any set representation that implements these functions (such that
+they have certain prescribed properties) can be used as bounds.
+
+<P>
+
+<P><BR>
+
+<P>
+<!-- MATH
+ $member : (\iota, Bounds\ \iota) \to bool$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img100.svg"
+ ALT="$member : (\iota, Bounds\ \iota) \to bool$"></SPAN>: <!-- MATH
+ $member(i,bnd)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img101.svg"
+ ALT="$member(i,bnd)$"></SPAN> returns
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.89ex; vertical-align: -0.12ex; " SRC="img102.svg"
+ ALT="$true$"></SPAN> when <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img34.svg"
+ ALT="$i$"></SPAN> is a member of the set defined by <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ ALT="$bnd$"></SPAN>.
+
+<P>
+
+<P><BR>
+
+<P>
+<!-- MATH
+ $join, meet : (Bounds\ \iota, Bounds\ \iota) \to
+Bounds\ \iota$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img103.svg"
+ ALT="$join, meet : (Bounds\ \iota, Bounds\ \iota) \to
+Bounds\ \iota$"></SPAN>. Lattice-theoretical <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.75ex; vertical-align: -0.12ex; " SRC="img104.svg"
+ ALT="$\sqcup$"></SPAN> and <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.75ex; vertical-align: -0.12ex; " SRC="img105.svg"
+ ALT="$\sqcap$"></SPAN>, respectively, in
+the lattice of bounds over <!-- MATH
+ $Bounds\ \iota$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img18.svg"
+ ALT="$Bounds\ \iota$"></SPAN> (approximating set union and
+-intersection). Their semantics are given in Section&nbsp;<A HREF="#sec-jm"><IMG  ALT="[*]" SRC="crossref.png"></A>.
+
+<P>
+
+<P><BR>
+
+<P>
+
+<SPAN  CLASS="textit">Example</SPAN> (dense 1-D bounds): <SPAN  CLASS="texttt">meet(1..10,5..30)</SPAN> <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ ALT="$=$"></SPAN>
+<SPAN  CLASS="texttt">5..10</SPAN>, <SPAN  CLASS="texttt">join(1..10,20..30)</SPAN> <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ ALT="$=$"></SPAN> <SPAN  CLASS="texttt">1..30</SPAN>.
+
+<P>
+
+<P><BR>
+
+<P>
+<!-- MATH
+ $isDense, isSparse, isPredicate, isProduct : (Bounds\ \iota) \to bool$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img106.svg"
+ ALT="$isDense, isSparse, isPredicate, isProduct : (Bounds\ \iota) \to bool$"></SPAN>:
+they all test whether their arguments are of the corresponding type.
+
+<P>
+
+<P><BR>
+
+<P>
+<!-- MATH
+ $finite : (Bounds\ \iota) \to bool$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img107.svg"
+ ALT="$finite : (Bounds\ \iota) \to bool$"></SPAN>:
+ <!-- MATH
+ $finite(bnd)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img108.svg"
+ ALT="$finite(bnd)$"></SPAN> is true iff <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ ALT="$bnd$"></SPAN> is classified as finite (<SPAN  CLASS="textit">i.e.</SPAN>, if <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ ALT="$bnd$"></SPAN> is
+dense, sparse, <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.34ex; vertical-align: -0.57ex; " SRC="img4.svg"
+ ALT="$empty$"></SPAN>, or a product of finite bounds).
+
+<P>
+
+<P><BR>
+
+<P>
+<!-- MATH
+ $size : (Bounds\ \iota) \to int$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img109.svg"
+ ALT="$size : (Bounds\ \iota) \to int$"></SPAN>: <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img110.svg"
+ ALT="$size(bnd)$"></SPAN> returns the number of
+elements in the finite bound <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ ALT="$bnd$"></SPAN>. It is undefined for infinite bounds.
+
+<P>
+
+<P><BR>
+
+<P>
+<!-- MATH
+ $enum : (Bounds\ \iota) \to Array\ int\ \iota$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img111.svg"
+ ALT="$enum : (Bounds\ \iota) \to Array\ int\ \iota$"></SPAN>: <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img112.svg"
+ ALT="$enum(bnd)$"></SPAN>
+provides an enumeration of the elements in the finite bound <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ ALT="$bnd$"></SPAN>, in
+lexicographic order, in the form of an array with bound <!-- MATH
+ $0..size(bnd)-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img113.svg"
+ ALT="$0..size(bnd)-1$"></SPAN>
+containing the elements of <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ ALT="$bnd$"></SPAN> in this order. Undefined for infinite
+bounds.
+
+<P>
+
+<P><BR>
+
+<P>
+
+<SPAN  CLASS="textit">Example</SPAN> (sparse 1-D bound): <code>enum({3,1,7})</code> <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ ALT="$=$"></SPAN>
+<SPAN  CLASS="texttt">[0..2 : 1,3,7]</SPAN>.
+
+<P>
+
+<P><BR>
+
+<P>
+
+<SPAN  CLASS="textit">Note</SPAN>: <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img114.svg"
+ ALT="$enum$"></SPAN> is currently not visible in HERO-ML. It is however
+visible (and used) in intermediate layers. It is also used in the
+semantics for functions such as <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img9.svg"
+ ALT="$reduce$"></SPAN>, and <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img10.svg"
+ ALT="$scan$"></SPAN>.
+
+<P>
+
+<H1><A ID="SECTION00060000000000000000"></A>
+<A ID="sec-io"></A><BR>
+I/O
+</H1>
+
+<P>
+To allow programs to communicate with the surrounding environment, HERO-ML
+provides a simple model where programs have access to an input pipe and an
+output pipe. HERO-ML values can be read using the &ldquo;<SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img115.svg"
+ ALT="$in$"></SPAN>&rdquo; operator, and
+written using an <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.89ex; vertical-align: -0.12ex; " SRC="img116.svg"
+ ALT="$out$"></SPAN> statement.  In the abstract syntax in
+Section&nbsp;<A HREF="#sec-spec"><IMG  ALT="[*]" SRC="crossref.png"></A> the grammars for expressions, and
+statements are extended with the following cases:
+<P><!-- MATH
+ \begin{displaymath}
+\begin{array}{rcl}
+exp  & \to & in\ type\\
+     s & \to & out\ |\ out\ exp\ |\ out\ exp_1,\ldots,exp_n
+    \end{array}
+\end{displaymath}
+ -->
+</P><DIV CLASS="displaymath">
+<IMG
+ STYLE="height: 6.02ex; vertical-align: -2.32ex; " SRC="img117.svg"
+ ALT="$\displaystyle \begin{array}{rcl}
+exp &amp; \to &amp; in\ type\\
+s &amp; \to &amp; out\ \vert\ out\ exp\ \vert\ out\ exp_1,\ldots,exp_n
+\end{array}$">
+</DIV><P></P>
+Thus <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.44ex; vertical-align: -0.57ex; " SRC="img118.svg"
+ ALT="$in\ type$"></SPAN> reads a HERO-ML value of type <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.34ex; vertical-align: -0.57ex; " SRC="img27.svg"
+ ALT="$type$"></SPAN> from the input pipe,
+and <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.34ex; vertical-align: -0.57ex; " SRC="img119.svg"
+ ALT="$out\ exp$"></SPAN> writes the value of <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.91ex; vertical-align: -0.57ex; " SRC="img79.svg"
+ ALT="$exp$"></SPAN> to the output pipe. <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.89ex; vertical-align: -0.12ex; " SRC="img116.svg"
+ ALT="$out$"></SPAN> can also
+write multiple expressions given as a comma-separated list, and it can
+also be executed without any arguments in which case a kind of marker is
+written to the output pipe.
+
+<P>
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img115.svg"
+ ALT="$in$"></SPAN> has to be typed since HERO-ML is a strongly and explicitly typed
+language. Reading a value of the wrong type will give a runtime error.
+
+<P>
+Values of any type can be read and written: however they will always be
+evaluated. For example, the statement <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.34ex; vertical-align: -0.57ex; " SRC="img120.svg"
+ ALT="$out\ x+y$"></SPAN> evaluates the expression
+<SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.26ex; vertical-align: -0.57ex; " SRC="img121.svg"
+ ALT="$x+y$"></SPAN> and then writes the result to the output pipe. An example of the use
+of <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img115.svg"
+ ALT="$in$"></SPAN> is the following:
+<P><!-- MATH
+ \begin{displaymath}
+x = 23 + {in\ int} * y
+\end{displaymath}
+ -->
+</P><DIV CLASS="displaymath">
+<IMG
+ STYLE="height: 2.44ex; vertical-align: -0.57ex; " SRC="img122.svg"
+ ALT="$\displaystyle x = 23 + {in\ int} * y
+$">
+</DIV><P></P>
+Here an integer value is read from the input pipe, it is multiplied
+ by the variable <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.91ex; vertical-align: -0.57ex; " SRC="img123.svg"
+ ALT="$y$"></SPAN>, 23 is added, and then result is stored in the
+variable <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img124.svg"
+ ALT="$x$"></SPAN>.
+
+<P>
+HERO-ML only knows the <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img115.svg"
+ ALT="$in$"></SPAN> and <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.89ex; vertical-align: -0.12ex; " SRC="img116.svg"
+ ALT="$out$"></SPAN> primitives for communicating with the
+environment. It hs no means to connect the input and output pipes to any
+particular channels. What these pipes are connected to can therefore be
+adapted outside HERO-ML for the specific environment.  For example, an
+interpreter/debugger for the language could simply let the data coming
+through the output pipe be written to the screen or to a log file, and it
+could similarly have the input pipe be connected to a user prompt or a file.
+On the other hand, when translating a HERO-ML program to code for some
+target platform, the pipes would typically be mapped to the specific I/O
+mechanisms of that platform.  For instance, if a program were to be
+translated into a CUDA kernel, then the pipes could be mapped to
+input/output parameters of the kernel.
+
+<P>
+
+<H1><A ID="SECTION00070000000000000000">
+A Worked Example: Feed-Forward ANN</A>
+</H1> 
+
+<P>
+We now show how the computation performed by a classical feed-forward
+network can be modeled in HERO-ML.
+
+<P>
+
+<H2><A ID="SECTION00071000000000000000">
+Background</A>
+</H2>
+
+<P>
+An Artificial Neural Network (ANN) is a computational structure whose
+way of working is inspired by how the nervous system works in living
+beings. Such nervous systems typically have the following
+characteristics:
+
+<UL>
+<LI>they are composed out of many <SPAN  CLASS="textit">small</SPAN>, <SPAN  CLASS="textit">interconnected
+  units</SPAN> (the <SPAN  CLASS="textit">neurons</SPAN>),
+
+<P>
+</LI>
+<LI>the interconnection is typically <SPAN  CLASS="textit">sparse</SPAN>, i.e., each neuron is
+  connected only to a few other neurons,
+
+<P>
+</LI>
+<LI>each neuron has an <SPAN  CLASS="textit">activity level</SPAN>, which is a affected by the
+  activity levels of the neurons that it is connected to, and
+
+<P>
+</LI>
+<LI>the activity level of a neuron is a <SPAN  CLASS="textit">highly non-linear</SPAN> function
+  of the activity levels of its connected neurons. In particular there are
+  <SPAN  CLASS="textit">thresholding effects</SPAN> caused by the activity level being saturated.
+
+<P>
+</LI>
+</UL>
+
+<P>
+ANN's are mimicking this. There are many variations. A claassical example is
+the <SPAN  CLASS="textit">McCulloch-Pitts neuron</SPAN>, where the activity level of a neuron is
+computed by thresholding a weighted sum of the activity levels of its
+neighbours. See Fig.&nbsp;<A HREF="#fig-pitts"><IMG  ALT="[*]" SRC="crossref.png"></A>.
+
+<P>
+
+<DIV class="CENTER"><A ID="fig-pitts"></A><A ID="430"></A>
+<TABLE>
+<CAPTION class="BOTTOM"><STRONG>Figure:</STRONG>
+McCulloch-Pitts neuron.</CAPTION>
+<TR><TD><DIV class="CENTER">
+<IMG
+ STYLE="height: 10.50ex; vertical-align: -0.12ex; " SRC="img125.svg"
+ ALT="\includegraphics[scale=0.6, clip]{pitts.pdf}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+
+<H2><A ID="SECTION00072000000000000000">
+Feed-Forward Networks</A>
+</H2>
+
+<P>
+
+<DIV class="CENTER"><A ID="fig-layers"></A><A ID="438"></A>
+<TABLE>
+<CAPTION class="BOTTOM"><STRONG>Figure:</STRONG>
+Layers in a feed-forward network.</CAPTION>
+<TR><TD><DIV class="CENTER">
+<IMG
+ STYLE="height: 10.50ex; vertical-align: -0.12ex; " SRC="img126.svg"
+ ALT="\includegraphics[scale=0.6, clip]{layers.pdf}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+In a <SPAN  CLASS="textit">feed-forward network</SPAN> the units are arranged in a number of
+<SPAN  CLASS="textit">layers</SPAN>, where each interconnection goes from some layer <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.26ex; vertical-align: -0.31ex; " SRC="img127.svg"
+ ALT="$l-1$"></SPAN> to
+layer <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img128.svg"
+ ALT="$l$"></SPAN>. See Fig.&nbsp;<A HREF="#fig-layers"><IMG  ALT="[*]" SRC="crossref.png"></A>. There are three kinds of layers:
+
+<UL>
+<LI>an <SPAN  CLASS="textit">input</SPAN> layer, which provides the input to the ANN,
+
+<P>
+</LI>
+<LI>a number of <SPAN  CLASS="textit">hidden</SPAN> layers, which contain units
+  interconnected between layers similarly to the McCulloch-Pitts neuron in
+  Fig.&nbsp;<A HREF="#fig-pitts"><IMG  ALT="[*]" SRC="crossref.png"></A>, and
+
+<P>
+</LI>
+<LI>an <SPAN  CLASS="textit">output</SPAN> layer, which provides the output (or response) from
+  the ANN given a certain input.
+
+<P>
+</LI>
+</UL>
+The input is basically an array of numbers. It can, for instance, be a pixel
+matrix encoding a picture. The output is also an array of numbers that
+encodes the output. It can, for instance, represent a classification of some
+object in the picture.
+
+<P>
+Each unit in a hidden layer computes its output as a weighted, thresholded
+sum of the outputs of the connected units in the previous layers,
+similarly to the McCulloch-Pitts neuron in Fig.&nbsp;<A HREF="#fig-pitts"><IMG  ALT="[*]" SRC="crossref.png"></A>.
+Mathematically, output <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.12ex; vertical-align: -0.78ex; " SRC="img129.svg"
+ ALT="$z_{lj}$"></SPAN> from unit <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.44ex; vertical-align: -0.57ex; " SRC="img130.svg"
+ ALT="$j$"></SPAN> in layer <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img128.svg"
+ ALT="$l$"></SPAN> is computed as
+<P></P>
+<DIV CLASS="displaymath"><A ID="eq-output"></A><!-- MATH
+ \begin{equation}
+z_{li} = s(\sum_j w_{lij}z_{l-1j})
+\end{equation}
+ -->
+<TABLE CLASS="equation" >
+<TR>
+<TD  style="text-align:center;"><SPAN CLASS="MATH"><IMG
+ STYLE="height: 6.17ex; vertical-align: -3.40ex; " SRC="img131.svg"
+ ALT="$\displaystyle z_{li} = s(\sum_j w_{lij}z_{l-1j})$"></SPAN></TD>
+<TD  CLASS="eqno" style="text-align:right">
+(<SPAN CLASS="arabic">1</SPAN>)</TD></TR>
+</TABLE></DIV>
+<P></P>
+where the sum ranges over the units <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.44ex; vertical-align: -0.57ex; " SRC="img130.svg"
+ ALT="$j$"></SPAN> in layer <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.26ex; vertical-align: -0.31ex; " SRC="img127.svg"
+ ALT="$l-1$"></SPAN> that are connected
+to unit <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img34.svg"
+ ALT="$i$"></SPAN> in layer <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img128.svg"
+ ALT="$l$"></SPAN>. <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.12ex; vertical-align: -0.78ex; " SRC="img132.svg"
+ ALT="$w_{lij}$"></SPAN> is the <SPAN  CLASS="textit">weight</SPAN> of the connection
+from <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.44ex; vertical-align: -0.57ex; " SRC="img130.svg"
+ ALT="$j$"></SPAN> in layer <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.26ex; vertical-align: -0.31ex; " SRC="img127.svg"
+ ALT="$l-1$"></SPAN> to <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img34.svg"
+ ALT="$i$"></SPAN> in layer <SPAN CLASS="MATH"><IMG
+ STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img128.svg"
+ ALT="$l$"></SPAN>. <SPAN CLASS="MATH"><IMG
+ STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img24.svg"
+ ALT="$s$"></SPAN> is commonly chosen as the
+<SPAN  CLASS="textit">sigmoid function</SPAN>, defined by
+<P></P>
+<DIV CLASS="displaymath"><A ID="eq-sigmoid"></A><!-- MATH
+ \begin{equation}
+s(x) = \frac{1}{1 + e^{-x}}
+\end{equation}
+ -->
+<TABLE CLASS="equation" >
+<TR>
+<TD  style="text-align:center;"><SPAN CLASS="MATH"><IMG
+ STYLE="height: 5.30ex; vertical-align: -1.90ex; " SRC="img133.svg"
+ ALT="$\displaystyle s(x) = \frac{1}{1 + e^{-x}}$"></SPAN></TD>
+<TD  CLASS="eqno" style="text-align:right">
+(<SPAN CLASS="arabic">2</SPAN>)</TD></TR>
+</TABLE></DIV>
+<P></P>
+The sigmoid function provides a &ldquo;soft&rdquo; thresholding, see the sketch in
+Fig.&nbsp;<A HREF="#fig-sigmoid"><IMG  ALT="[*]" SRC="crossref.png"></A>.
+
+<DIV class="CENTER"><A ID="fig-sigmoid"></A><A ID="471"></A>
+<TABLE>
+<CAPTION class="BOTTOM"><STRONG>Figure:</STRONG>
+The sigmoid function.</CAPTION>
+<TR><TD><DIV class="CENTER">
+<IMG
+ STYLE="height: 13.84ex; vertical-align: -0.12ex; " SRC="img134.svg"
+ ALT="\includegraphics[scale=0.8, clip]{sigmoid.pdf}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+The weights are very important. They provide the knowledge that is stored in
+the network. <SPAN  CLASS="textit">Training</SPAN> the network means to set the weights in order
+to have a response from the network that is as close as possible to the
+desired output.  A feed-forward network with hidden layers is a kind of
+<SPAN  CLASS="textit">Deep Neural Network</SPAN> (DNN), and training such a network is called
+<SPAN  CLASS="textit">deep learning</SPAN>.  There are systematic methods, such as
+<SPAN  CLASS="textit">back-propagation</SPAN>, to do this, but we will not treat this further
+here.
+
+<P>
+
+<H2><A ID="SECTION00073000000000000000">
+Modeling of Feed-Forward Network Computing with Hero-ML</A>
+</H2>
+
+<P>
+We will now show how to model one particular way of computing the output
+from a trained feed-forward network, given some input. We will use nested
+arrays, where the nesting reflects the structuring of the network into
+layers. More specifically <SPAN  CLASS="texttt">z</SPAN> will be an array of arrays, where
+<SPAN  CLASS="texttt">z[l]</SPAN> holds the output values of the units in layer
+<SPAN  CLASS="texttt">l</SPAN>. The weights will be stored in an array of matrices <SPAN  CLASS="texttt">w</SPAN>,
+where <SPAN  CLASS="texttt">w[l]</SPAN> is a matrix where each element <SPAN  CLASS="texttt">w[l][i,j]</SPAN> holds
+the weight for the connection from unit <SPAN  CLASS="texttt">j</SPAN> in layer <SPAN  CLASS="texttt">l-1</SPAN>
+to unit <SPAN  CLASS="texttt">i</SPAN> in layer <SPAN  CLASS="texttt">l</SPAN>. The types of <SPAN  CLASS="texttt">z</SPAN> and
+<SPAN  CLASS="texttt">w</SPAN> are as follows:
+<PRE>
+z : Array int (Array int float)
+w : Array int (Array (int,int) float)
+</PRE>
+Note that <SPAN  CLASS="texttt">w[l]</SPAN> might be a sparse matrix, with a sparse bound. We
+assume that the arrays <SPAN  CLASS="texttt">z</SPAN> and <SPAN  CLASS="texttt">w</SPAN> themselves have dense
+bounds <SPAN  CLASS="texttt">0..n-1</SPAN> and <SPAN  CLASS="texttt">1..n-1</SPAN>, respectively, where <SPAN  CLASS="texttt">n</SPAN>
+is the number of layers. Fig.&nbsp;<A HREF="#fig-array"><IMG  ALT="[*]" SRC="crossref.png"></A> shows an example with an input
+layer with three units, a hidden layer with five units, and an output
+layer with two units. We can note that the nested array representation
+easily can handle the fact that different layers can hold different numbers
+of units in feed-forward networks.
+
+<P>
+
+<DIV class="CENTER"><A ID="fig-array"></A><A ID="504"></A>
+<TABLE>
+<CAPTION class="BOTTOM"><STRONG>Figure:</STRONG>
+A nested array representation of layers in a feed-forward network.</CAPTION>
+<TR><TD><DIV class="CENTER">
+<IMG
+ STYLE="height: 12.17ex; vertical-align: -0.12ex; " SRC="img135.svg"
+ ALT="\includegraphics[scale=0.7, clip]{arrays.pdf}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+We now give HERO-ML code for the computation. We use the following
+declarations<A ID="tex2html11"
+  HREF="#foot507"><SUP><SPAN CLASS="arabic">6</SPAN></SUP></A>:
+<PRE>
+s(x) = 1/(1 + exp (-x)) // sigmoid function
+sum(a) = reduce(+,a)    // sum over abstract array
+</PRE>
+We assume that the input to the computation is stored in the array
+<SPAN  CLASS="texttt">input</SPAN>. First, the input layer <SPAN  CLASS="texttt">z[0]</SPAN> is assigned this
+array. Then the code loops over the other layers, computing <SPAN  CLASS="texttt">z[l]</SPAN>
+from a matrix-array multiplication of <SPAN  CLASS="texttt">z[l-1]</SPAN> and <SPAN  CLASS="texttt">w[l]</SPAN>
+followed by a thresholding of the elements in the resulting array:
+<PRE>
+z[0] = input;
+l = 1;
+  while l &lt; n do
+    z[l] = forall i -&gt; s(sum(forall j -&gt; (w[l][i,j] * z[l-1][j])));
+    l = l + 1
+</PRE>
+
+<P>
+This version creates a new abstract array for each array assignment. As an
+alternative we can instead use a <SPAN  CLASS="texttt">foreach</SPAN> statement, which performs
+an in-place update:
+<PRE>
+foreach i in bound(z[0]) do z[0][i] = input[i];
+l = 1;
+  while l &lt; n do
+    foreach i in bound(z[l]) do
+      z[l][i] = s(sum(forall j -&gt; (w[l][i,j] * z[l-1][j])));
+    l = l + 1
+</PRE>
+What if we instead choose to use flat (non-nested) arrays? <SPAN  CLASS="texttt">z</SPAN> then
+turns ito a matrix, and <SPAN  CLASS="texttt">w</SPAN> becomes a three-dimensional tensor. Their
+types will now be as follows:
+<PRE>
+z : Array (int,int) float
+w : Array (int,int,int) float
+</PRE>
+For each iteration <SPAN  CLASS="texttt">l</SPAN>, row <SPAN  CLASS="texttt">l</SPAN> in <SPAN  CLASS="texttt">z</SPAN> will now be
+updated.  This is accomplished by a <SPAN  CLASS="texttt">foreach</SPAN> statement where the
+elements to be updated are selected from this row. We obtain the following
+code:
+<PRE>
+foreach i in bound(forall j -&gt; z[0,j]) do z[0,i] = input[i];
+l = 1;
+  while l &lt; n do
+    foreach i in bound(forall j -&gt; z[l,j]) do
+      z[l,i] = s(sum(forall j -&gt; (w[l,i,j] * z[l-1,j])));
+    l = l + 1
+</PRE>
+Here the <SPAN  CLASS="texttt">l</SPAN>'th row is extracted using a <SPAN  CLASS="texttt">forall</SPAN> expression.
+
+<P>
+A disadvantage with flat arrays is that if <SPAN  CLASS="texttt">z</SPAN> has a dense bound (a
+regular matrix) then all layers will be modeled to have the same number of
+units. There are of course ways around this, but the nested array approach
+still seems to provide a better fit.
+
+<P>
+
+</body>
+</html>
