@@ -5,7 +5,7 @@
 	<title>HERO-ML</title>
 	<link rel="stylesheet" href="style.css">
 </head>
-<body style="width: 50em">
+<body style="font-family: 'Times New Roman', serif; width: 50em;">
 <h1>HERO-ML</h1>
 
 <p>
@@ -76,13 +76,13 @@ resources can be provided at low cost.
 Today we see a large proliferation of accelerator architectures:
 GPGPU's (like NVIDIA
 TESLA<a id="tex2html2"
-  href="#foot546"><sup><span class="arabic">2</span></sup></a>),
+  href="#foot547"><sup><span class="arabic">2</span></sup></a>),
 many-cores (such as Adapteva
 Ephiphany<a id="tex2html3"
-  href="#foot547"><sup><span class="arabic">3</span></sup></a>),
+  href="#foot548"><sup><span class="arabic">3</span></sup></a>),
 solutions involving FPGA (e.g., Xilinx
 ZYNQ<a id="tex2html4"
-  href="#foot548"><sup><span class="arabic">4</span></sup></a>),
+  href="#foot549"><sup><span class="arabic">4</span></sup></a>),
 and even ASICs. Although these architectures are quite different, they
 have in common that they typically rely on massive data parallelism to
 obtain performance. Besides embedded systems, these kinds of
@@ -90,7 +90,7 @@ accelerators are also increasingly being used in traditional HPC as
 well as cloud computing: an example of the latter is Microsoft's
 Catapult project that integrates FPGAs into
 servers<a id="tex2html5"
-  href="#foot549"><sup><span class="arabic">5</span></sup></a>.
+  href="#foot550"><sup><span class="arabic">5</span></sup></a>.
 
 <p>
 Developing software for these heterogenenous systems provides a
@@ -146,7 +146,7 @@ type. The language is deliberately kept simple, since its main purpose is to
 demonstrate the principles of very high-level data parallel programming
 rather than providing a full-fledged production language. The sequential
 part is a standard WHILE language&nbsp;[#!ProgramAnalysis:Book!#], extended with
-a type for so-called <span  class="textit">abstract arrays</span> (see Section&nbsp;<a href="#sec-AA"><img  alt="[*]" src="crossref.png"></a>), a set
+a type for so-called <span  class="textit">abstract arrays</span> (see Section&nbsp;<a href="#sec-AA">2.1</a>), a set
 of <span  class="textit">array expressions</span>, a statement to <span  class="textit">evaluate</span> such
   expressions, and bind the resulting array to a program variable, and a
 <span  class="textit">masked concurrent assignment</span> where all elements in an existing array
@@ -184,14 +184,14 @@ In general an abstract array is a pair
 </p>
 <div class="displaymath">
 <IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img1.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img1.svg"
  ALT="$\displaystyle (f,bnd)
 $">
 </div><p></p>
 where <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img2.svg"
  ALT="$bnd$"></span> is its <span  class="textit">bound</span>, which is a set representation, and <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img3.svg"
+ STYLE="height: 2.39ex; vertical-align: -0.58ex; " SRC="img3.svg"
  ALT="$f$"></span> is a
 function defining the values of the array elements for the indices within
 the bound. Evaluating an abstract array means to first compute its bound,
@@ -220,9 +220,9 @@ HERO-ML supports the following kinds of bounds:
 <p>
 </li>
 <li><span class="MATH"><IMG
- STYLE="height: 2.34ex; vertical-align: -0.57ex; " SRC="img4.svg"
+ STYLE="height: 2.10ex; vertical-align: -0.56ex; " SRC="img4.svg"
  ALT="$empty$"></span> and <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img5.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img5.svg"
  ALT="$all$"></span>, representing the empty and universal set,
     respectively, and
 
@@ -233,7 +233,7 @@ HERO-ML supports the following kinds of bounds:
 <p>
 </li>
 </ul>
-Some two-dimensional bounds are illustrated in Fig.&nbsp;<a href="#fig-bounds"><img  alt="[*]" src="crossref.png"></a>. In
+Some two-dimensional bounds are illustrated in Fig.&nbsp;<a href="#fig-bounds">1</a>. In
 Section&nbsp;<a href="#sec-multisparse"><img  alt="[*]" src="crossref.png"></a> we introduce a generalization of sparse
 multi-dimensional bounds, where the bound is embedded into a
 higher-dimensional space where it constrains certain dimensions. These
@@ -246,20 +246,20 @@ The HERO-ML bounds form a <span  class="textit">complete
 mathematical properties. Indeed there is a strong relation to static program
 analysis, and the computation of bounds can be seen as a kind of run-time
 value analysis. Some two-dimensional bounds are illustrated in
-Fig.&nbsp;<a href="#fig-bounds"><img  alt="[*]" src="crossref.png"></a>.
+Fig.&nbsp;<a href="#fig-bounds">1</a>.
 
 <p>
 
-<div class="CENTER"><a id="fig-bounds"></a><a id="550"></a>
+<div class="CENTER"><a id="fig-bounds"></a><a id="551"></a>
 <table>
-<caption class="BOTTOM"><strong>Figure:</strong>
+<caption class="BOTTOM"><strong>Figure 1:</strong>
 A dense product bound, a product of a dense and a sparse bound, a
   product of two sparse bounds, and a 2D sparse bound. (Adapted
   from&nbsp;[#!DFH-HW2000!#].)</caption>
 <tr><td>
 <div class="CENTER">
 <IMG
- STYLE="width: 50em" SRC="img6.svg"
+ STYLE="height: 26.24ex; vertical-align: -0.11ex; " SRC="img6.svg"
  ALT="\includegraphics[scale=0.9, clip]{2d-bounds-cropped.pdf}">
   
 </div></td></tr>
@@ -288,7 +288,7 @@ There are three major kinds of array expressions in HERO-ML:
     forall exoression. Forall expressions, and the rules for computing their
     bounds, are further described in Section&nbsp;<a href="#sec-forall-bounds"><img  alt="[*]" src="crossref.png"></a>. (A
     variation of <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img7.svg"
+ STYLE="height: 2.43ex; vertical-align: -0.58ex; " SRC="img7.svg"
  ALT="$forall$"></span> expressions was also present in Data Field
     Haskell. See&nbsp;[#!Holmerin-Xjobb!#] for details.)
 
@@ -303,25 +303,25 @@ found in the literature.
 <p>
 An array access out of bounds returns an undefined value, which we denote
 &ldquo;<span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img8.svg"
+ STYLE="height: 1.94ex; vertical-align: -0.13ex; " SRC="img8.svg"
  ALT="$?$"></span>&rdquo;. However also array elements within bounds may hold this value. This
 is since bounds may be over-approximated: in particular, the rules for
 deriving implicit bounds for forall expressions may produce such
 bounds. This has some consequences for collective operations such as
 <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img9.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img9.svg"
  ALT="$reduce$"></span> and <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img10.svg"
+ STYLE="height: 1.45ex; vertical-align: -0.14ex; " SRC="img10.svg"
  ALT="$scan$"></span>, which will have to skip such elements.
 &ldquo;<span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img8.svg"
+ STYLE="height: 1.94ex; vertical-align: -0.13ex; " SRC="img8.svg"
  ALT="$?$"></span>&rdquo; is not accessible at source code level, but HERO-ML has a predicate
 <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img11.svg"
+ STYLE="height: 2.39ex; vertical-align: -0.58ex; " SRC="img11.svg"
  ALT="$isDef$"></span> that tests whether or not its argument is different from &ldquo;<span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img8.svg"
+ STYLE="height: 1.94ex; vertical-align: -0.13ex; " SRC="img8.svg"
  ALT="$?$"></span>&rdquo;
-(see Section&nbsp;<a href="#sec-test-undef"><img  alt="[*]" src="crossref.png"></a>).
+(see Section&nbsp;<a href="#sec-test-undef">4.4</a>).
 
 <p>
 
@@ -337,32 +337,32 @@ well-typed for the program to be well-typed). It is <span  class="textit">explic
 (all declared entities must be given a type). The types are similar to those
 found in ML-like functional languages, such as OCaml or Haskell, but with
 some restrictions.  It has basic types <span class="MATH"><IMG
- STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img12.svg"
+ STYLE="height: 1.91ex; vertical-align: -0.14ex; " SRC="img12.svg"
  ALT="$int$"></span>, <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img13.svg"
+ STYLE="height: 2.43ex; vertical-align: -0.58ex; " SRC="img13.svg"
  ALT="$float$"></span>, <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img14.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img14.svg"
  ALT="$bool$"></span>, a polymorhpic
 type <!-- MATH
  $Array\ \iota\ \alpha$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.50ex; vertical-align: -0.57ex; " SRC="img15.svg"
+ STYLE="height: 2.38ex; vertical-align: -0.56ex; " SRC="img15.svg"
  ALT="$Array\ \iota\ \alpha$"></span> for abstract arrays with indices of type <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img16.svg"
+ STYLE="height: 1.61ex; vertical-align: -0.15ex; " SRC="img16.svg"
  ALT="$\iota$"></span>
 and elements of type <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img17.svg"
+ STYLE="height: 1.57ex; vertical-align: -0.15ex; " SRC="img17.svg"
  ALT="$\alpha$"></span>, and a type <!-- MATH
  $Bounds\ \iota$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img18.svg"
+ STYLE="height: 2.01ex; vertical-align: -0.15ex; " SRC="img18.svg"
  ALT="$Bounds\ \iota$"></span> for bounds over
 indices of type <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img16.svg"
+ STYLE="height: 1.61ex; vertical-align: -0.15ex; " SRC="img16.svg"
  ALT="$\iota$"></span>. <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img17.svg"
+ STYLE="height: 1.57ex; vertical-align: -0.15ex; " SRC="img17.svg"
  ALT="$\alpha$"></span> can itself be an array data type: thus,
 HERO-ML supports nested arrays. Array indices are either integers (for
 one-dimensional arrays), or tuples of integers (for multi-dimensional
@@ -375,38 +375,38 @@ HERO-ML is not a full-fledged higher-order language. However, builtin
 functions and operators have function types. Contrary to higher-order
 functional languages these functions are on uncurried form, taking a tuple
 of individual arguments as argument. For instance the operator &ldquo;<span class="MATH"><IMG
- STYLE="height: 2.01ex; vertical-align: -0.31ex; " SRC="img19.svg"
+ STYLE="height: 1.91ex; vertical-align: -0.29ex; " SRC="img19.svg"
  ALT="$+$"></span>&rdquo; has
 the type <!-- MATH
  $(int,int)\to int$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img20.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img20.svg"
  ALT="$(int,int)\to int$"></span>, indicating that it takes two arguments of type
 <span class="MATH"><IMG
- STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img12.svg"
+ STYLE="height: 1.91ex; vertical-align: -0.14ex; " SRC="img12.svg"
  ALT="$int$"></span> and returns an <span class="MATH"><IMG
- STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img12.svg"
+ STYLE="height: 1.91ex; vertical-align: -0.14ex; " SRC="img12.svg"
  ALT="$int$"></span>. Arithmetic operators are overloaded over the
 numerical types <span class="MATH"><IMG
- STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img12.svg"
+ STYLE="height: 1.91ex; vertical-align: -0.14ex; " SRC="img12.svg"
  ALT="$int$"></span>, and <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img13.svg"
+ STYLE="height: 2.43ex; vertical-align: -0.58ex; " SRC="img13.svg"
  ALT="$float$"></span>: thus, for example,&ldquo;<span class="MATH"><IMG
- STYLE="height: 2.01ex; vertical-align: -0.31ex; " SRC="img19.svg"
+ STYLE="height: 1.91ex; vertical-align: -0.29ex; " SRC="img19.svg"
  ALT="$+$"></span>&rdquo; also has the
 type <!-- MATH
  $(float,float)\to float$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img21.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img21.svg"
  ALT="$(float,float)\to float$"></span>. Implicit type conversion is not permitted:
 thus, numerical arguments of different type are not allowed for these
 operators. HERO-ML also has collective array operations <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img9.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img9.svg"
  ALT="$reduce$"></span>, and
 <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img10.svg"
+ STYLE="height: 1.45ex; vertical-align: -0.14ex; " SRC="img10.svg"
  ALT="$scan$"></span>, which are higher-order in that they take a binary function, or
 operator, as an argument.
 
@@ -436,14 +436,14 @@ prog \to typedecls ; s
 </p>
 <div class="displaymath">
 <IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img22.svg"
+ STYLE="height: 2.42ex; vertical-align: -0.56ex; " SRC="img22.svg"
  ALT="$\displaystyle prog \to typedecls ; s
 $">
 </div><p></p>
 Here <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img23.svg"
+ STYLE="height: 2.42ex; vertical-align: -0.56ex; " SRC="img23.svg"
  ALT="$typedecls$"></span> is a list of type declarations, and <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img24.svg"
+ STYLE="height: 1.45ex; vertical-align: -0.14ex; " SRC="img24.svg"
  ALT="$s$"></span> is a statement as
 defined below. The  syntax for type declarations is given below:
 <p><!-- MATH
@@ -459,80 +459,80 @@ defined below. The  syntax for type declarations is given below:
 </p>
 <div class="displaymath">
 <IMG
- STYLE="height: 11.57ex; vertical-align: -5.11ex; " SRC="img25.svg"
+ STYLE="height: 11.07ex; vertical-align: -4.89ex; " SRC="img25.svg"
  ALT="$\displaystyle \begin{array}{rcl}
 typedecls &amp; \to &amp; \Lambda\ \vert\ typedecl ; ...
 ...x\_type &amp; \to &amp; int\ \vert\ (int,int)\ \vert\ (int,int,int) \cdots
 \end{array}$">
 </div><p></p>
 Here <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img26.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img26.svg"
  ALT="$id$"></span> is an identifier, and <span class="MATH"><IMG
- STYLE="height: 2.34ex; vertical-align: -0.57ex; " SRC="img27.svg"
+ STYLE="height: 2.10ex; vertical-align: -0.56ex; " SRC="img27.svg"
  ALT="$type$"></span> stands for the types that can be
 assigned to user-declared entities (program variables in the current version
 of HERO-ML).
 The ellipsis for index types means that we allow <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img28.svg"
+ STYLE="height: 1.43ex; vertical-align: -0.14ex; " SRC="img28.svg"
  ALT="$n$"></span>-tuples of <span class="MATH"><IMG
- STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img12.svg"
+ STYLE="height: 1.91ex; vertical-align: -0.14ex; " SRC="img12.svg"
  ALT="$int$"></span> for any
 <span class="MATH"><IMG
- STYLE="height: 2.05ex; vertical-align: -0.21ex; " SRC="img29.svg"
+ STYLE="height: 2.01ex; vertical-align: -0.20ex; " SRC="img29.svg"
  ALT="$n &gt; 1$"></span> as array indices. Thus, HERO-ML has arrays of any (finite)
 dimensionality.
 <span class="MATH"><IMG
- STYLE="height: 2.05ex; vertical-align: -0.12ex; " SRC="img30.svg"
+ STYLE="height: 1.96ex; vertical-align: -0.11ex; " SRC="img30.svg"
  ALT="$\Lambda$"></span> stands for the empty expression (similar to the empty string for
 grammars defining sets of strings).
 
 <p>
 The formats for identifiers, and numeric literals, are given in
-Section&nbsp;<a href="#sec-concrete"><img  alt="[*]" src="crossref.png"></a>.
+Section&nbsp;<a href="#sec-concrete">3.1</a>.
 
 <p>
 We now define the statements of HERO-ML. We start with the sequential
 part, which is fairly standard (except that array expressions <span class="MATH"><IMG
- STYLE="height: 1.91ex; vertical-align: -0.57ex; " SRC="img31.svg"
+ STYLE="height: 1.86ex; vertical-align: -0.56ex; " SRC="img31.svg"
  ALT="$aexp$"></span>, and
 bounds expressions <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img2.svg"
  ALT="$bnd$"></span>, defined later, may appear within &ldquo;scalar&rdquo;
 expressions):
 <dl>
 <dt><strong>Integer constant</strong></dt>
 <dd><span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img32.svg"
+ STYLE="height: 1.43ex; vertical-align: -0.14ex; " SRC="img32.svg"
  ALT="$m$"></span>, <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img28.svg"
+ STYLE="height: 1.43ex; vertical-align: -0.14ex; " SRC="img28.svg"
  ALT="$n$"></span>, <span  class="textbf">floating-point constant</span> <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img33.svg"
+ STYLE="height: 1.43ex; vertical-align: -0.14ex; " SRC="img33.svg"
  ALT="$c$"></span>
 
 <p>
 </dd>
 <dt><strong>Integer variable</strong></dt>
 <dd><span class="MATH"><IMG
- STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img34.svg"
+ STYLE="height: 1.91ex; vertical-align: -0.14ex; " SRC="img34.svg"
  ALT="$i$"></span>, <span  class="textbf">floating-point variable</span> <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img3.svg"
+ STYLE="height: 2.39ex; vertical-align: -0.58ex; " SRC="img3.svg"
  ALT="$f$"></span>,
   <span  class="textbf">boolean variable</span> <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img35.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img35.svg"
  ALT="$b$"></span>
 
 <p>
 </dd>
 <dt><strong>Array variable</strong></dt>
 <dd><span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img36.svg"
+ STYLE="height: 1.43ex; vertical-align: -0.14ex; " SRC="img36.svg"
  ALT="$a$"></span>
 
 <p>
 </dd>
 <dt><strong>Bounds variable</strong></dt>
 <dd><span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img37.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img37.svg"
  ALT="$d$"></span>
 
 <p>
@@ -542,7 +542,7 @@ expressions):
  $y \to i\ |\ f\ |\ b$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img38.svg"
+ STYLE="height: 2.64ex; vertical-align: -0.67ex; " SRC="img38.svg"
  ALT="$y \to i\ \vert\ f\ \vert\ b$"></span>
 
 <p>
@@ -552,16 +552,16 @@ expressions):
  $aop \to +\ |\ -\ |\ *\ |\ /$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img39.svg"
+ STYLE="height: 2.65ex; vertical-align: -0.67ex; " SRC="img39.svg"
  ALT="$aop \to +\ \vert\ -\ \vert\ *\ \vert\ /$"></span>
 
 <p>
 </dd>
 <dt><strong>General <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img28.svg"
+ STYLE="height: 1.43ex; vertical-align: -0.14ex; " SRC="img28.svg"
  ALT="$n$"></span>-ary function</strong></dt>
 <dd><span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img40.svg"
+ STYLE="height: 2.39ex; vertical-align: -0.58ex; " SRC="img40.svg"
  ALT="$fun$"></span>
 
 <p>
@@ -578,7 +578,7 @@ expressions):
 </p>
 <div class="displaymath">
 <IMG
- STYLE="height: 6.02ex; vertical-align: -2.32ex; " SRC="img41.svg"
+ STYLE="height: 5.76ex; vertical-align: -2.22ex; " SRC="img41.svg"
  ALT="$\displaystyle \begin{array}{rcl}
 iexp &amp; \to &amp; n\ \vert\ i\ \vert\ iexp \ aop\ iexp\\
 &amp; \vert &amp; fun (exp_1,\ldots,exp_n)\ \vert\ aexp\ index\_exp\\
@@ -599,7 +599,7 @@ iexp &amp; \to &amp; n\ \vert\ i\ \vert\ iexp \ aop\ iexp\\
 </p>
 <div class="displaymath">
 <IMG
- STYLE="height: 6.02ex; vertical-align: -2.32ex; " SRC="img42.svg"
+ STYLE="height: 5.76ex; vertical-align: -2.22ex; " SRC="img42.svg"
  ALT="$\displaystyle \begin{array}{rcl}
 fexp &amp; \to &amp; c\ \vert\ f\ \vert\ fexp \ aop\ fexp'\\
 &amp; \vert &amp;fun (exp_1,\ldots,exp_n)\ \vert\ aexp\ index\_exp
@@ -613,7 +613,7 @@ fexp &amp; \to &amp; c\ \vert\ f\ \vert\ fexp \ aop\ fexp'\\
  $bop \to ||\ |\ \&\&$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img43.svg"
+ STYLE="height: 2.64ex; vertical-align: -0.67ex; " SRC="img43.svg"
  ALT="$bop \to \vert\vert\ \vert\ \&amp;\&amp;$"></span>
 
 <p>
@@ -623,14 +623,14 @@ fexp &amp; \to &amp; c\ \vert\ f\ \vert\ fexp \ aop\ fexp'\\
  $rop \to\ =\ |\ <$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img44.svg"
+ STYLE="height: 2.64ex; vertical-align: -0.67ex; " SRC="img44.svg"
  ALT="$rop \to\ =\ \vert\ &lt;$"></span>
 
 <p>
 </dd>
 <dt><strong>Boolean expression</strong></dt>
 <dd><span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img45.svg"
+ STYLE="height: 2.42ex; vertical-align: -0.56ex; " SRC="img45.svg"
  ALT="$bexp$"></span>:
   <p><!-- MATH
  \begin{displaymath}
@@ -644,7 +644,7 @@ fexp &amp; \to &amp; c\ \vert\ f\ \vert\ fexp \ aop\ fexp'\\
 </p>
 <div class="displaymath">
 <IMG
- STYLE="height: 8.79ex; vertical-align: -3.72ex; " SRC="img46.svg"
+ STYLE="height: 8.41ex; vertical-align: -3.56ex; " SRC="img46.svg"
  ALT="$\displaystyle \begin{array}{rcl}
 bexp &amp; \to &amp; true\ \vert\ false\ \vert\ b\\
 ...
@@ -660,7 +660,7 @@ bexp &amp; \to &amp; true\ \vert\ false\ \vert\ b\\
  $sexp \to iexp\ |\ fexp\ |\ bexp$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img47.svg"
+ STYLE="height: 2.64ex; vertical-align: -0.67ex; " SRC="img47.svg"
  ALT="$sexp \to iexp\ \vert\ fexp\ \vert\ bexp$"></span>
 
 <p>
@@ -670,14 +670,14 @@ bexp &amp; \to &amp; true\ \vert\ false\ \vert\ b\\
  $exp \to sexp\ |\ aexp\ |\ bnd$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img48.svg"
+ STYLE="height: 2.64ex; vertical-align: -0.67ex; " SRC="img48.svg"
  ALT="$exp \to sexp\ \vert\ aexp\ \vert\ bnd$"></span>
 
 <p>
 </dd>
 <dt><strong>HERO-ML statements</strong></dt>
 <dd><span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img24.svg"
+ STYLE="height: 1.45ex; vertical-align: -0.14ex; " SRC="img24.svg"
  ALT="$s$"></span>:
 <p><!-- MATH
  \begin{displaymath}
@@ -692,7 +692,7 @@ bexp &amp; \to &amp; true\ \vert\ false\ \vert\ b\\
 </p>
 <div class="displaymath">
 <IMG
- STYLE="height: 13.19ex; " SRC="img49.svg"
+ STYLE="height: 12.62ex; " SRC="img49.svg"
  ALT="\begin{displaymath}
 \begin{array}{rcl}
 s &amp; \to &amp; skip\ \vert\ y = sexp \\
@@ -720,7 +720,7 @@ and <span  class="textit">set elements</span>, respectively:
  $index\_exp$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img50.svg"
+ STYLE="height: 2.42ex; vertical-align: -0.56ex; " SRC="img50.svg"
  ALT="$index\_exp$"></span>:
 <p><!-- MATH
  \begin{displaymath}
@@ -732,7 +732,7 @@ index\_exp & \to & [iexp]\ |\ [iexp_1,\ldots,iexp_m] \\
 </p>
 <div class="displaymath">
 <IMG
- STYLE="height: 5.44ex; " SRC="img51.svg"
+ STYLE="height: 5.20ex; " SRC="img51.svg"
  ALT="\begin{displaymath}
 \begin{array}{rcl}
 index\_exp &amp; \to &amp; [iexp]\ \vert\ [iexp_1,\ldots,iexp_m] \\
@@ -746,12 +746,12 @@ index\_exp &amp; \to &amp; [iexp]\ \vert\ [iexp_1,\ldots,iexp_m] \\
  $set\_el\_var$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img52.svg"
+ STYLE="height: 2.01ex; vertical-align: -0.15ex; " SRC="img52.svg"
  ALT="$set\_el\_var$"></span>, <!-- MATH
  $set\_el\_exp$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img53.svg"
+ STYLE="height: 2.42ex; vertical-align: -0.56ex; " SRC="img53.svg"
  ALT="$set\_el\_exp$"></span>:
 <p><!-- MATH
  \begin{displaymath}
@@ -764,7 +764,7 @@ index\_exp &amp; \to &amp; [iexp]\ \vert\ [iexp_1,\ldots,iexp_m] \\
 </p>
 <div class="displaymath">
 <IMG
- STYLE="height: 7.64ex; " SRC="img54.svg"
+ STYLE="height: 7.31ex; " SRC="img54.svg"
  ALT="\begin{displaymath}
 \begin{array}{rcl}
 set\_el\_var &amp; \to &amp; i\ \vert\ (i_1,\ldo...
@@ -776,7 +776,7 @@ set\_el\_var &amp; \to &amp; i\ \vert\ (i_1,\ldo...
 </dd>
 <dt><strong>Bounds expression</strong></dt>
 <dd><span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img2.svg"
  ALT="$bnd$"></span>:
 <p><!-- MATH
  \begin{displaymath}
@@ -791,7 +791,7 @@ set\_el\_var &amp; \to &amp; i\ \vert\ (i_1,\ldo...
 </p>
 <div class="displaymath">
 <IMG
- STYLE="height: 10.41ex; " SRC="img55.svg"
+ STYLE="height: 9.96ex; " SRC="img55.svg"
  ALT="\begin{displaymath}
 \begin{array}{rcl}
 bnd &amp; \to &amp; empty\ \vert\ all\ \vert\ d\...
@@ -801,7 +801,7 @@ bnd &amp; \to &amp; empty\ \vert\ all\ \vert\ d\...
 </dd>
 <dt><strong>Array expression</strong></dt>
 <dd><span class="MATH"><IMG
- STYLE="height: 1.91ex; vertical-align: -0.57ex; " SRC="img31.svg"
+ STYLE="height: 1.86ex; vertical-align: -0.56ex; " SRC="img31.svg"
  ALT="$aexp$"></span>:
 <p><!-- MATH
  \begin{displaymath}
@@ -815,7 +815,7 @@ bnd &amp; \to &amp; empty\ \vert\ all\ \vert\ d\...
 </p>
 <div class="displaymath">
 <IMG
- STYLE="height: 10.41ex; " SRC="img56.svg"
+ STYLE="height: 9.96ex; " SRC="img56.svg"
  ALT="\begin{displaymath}
 \begin{array}{rcl}
 aexp &amp; \to &amp; a\ \vert\ [exp\ :\ set\_el\...
@@ -828,7 +828,7 @@ aexp &amp; \to &amp; a\ \vert\ [exp\ :\ set\_el\...
  $expl\_array$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img57.svg"
+ STYLE="height: 2.42ex; vertical-align: -0.56ex; " SRC="img57.svg"
  ALT="$expl\_array$"></span>:
 <p><!-- MATH
  \begin{displaymath}
@@ -846,7 +846,7 @@ aexp &amp; \to &amp; a\ \vert\ [exp\ :\ set\_el\...
 </p>
 <div class="displaymath">
 <IMG
- STYLE="height: 21.52ex; " SRC="img58.svg"
+ STYLE="height: 20.59ex; " SRC="img58.svg"
  ALT="\begin{displaymath}
 \begin{array}{rcl}
 db &amp; \to &amp; iexp..iexp'\ \vert\ iexp..\ \...
@@ -863,7 +863,7 @@ defined by a list of index/element pairs.
 </dd>
 <dt><strong>Array assignment</strong></dt>
 <dd><span class="MATH"><IMG
- STYLE="height: 2.44ex; vertical-align: -0.57ex; " SRC="img59.svg"
+ STYLE="height: 2.33ex; vertical-align: -0.56ex; " SRC="img59.svg"
  ALT="$a\_assign$"></span>:
 <p><!-- MATH
  \begin{displaymath}
@@ -878,7 +878,7 @@ defined by a list of index/element pairs.
 </p>
 <div class="displaymath">
 <IMG
- STYLE="height: 13.65ex; " SRC="img60.svg"
+ STYLE="height: 9.96ex; " SRC="img60.svg"
  ALT="\begin{displaymath}
 \begin{array}{rcl}
 a\_assign &amp; \to &amp; a\ =\ aexp\\
@@ -904,9 +904,9 @@ arrays, and assignment of such arrays. We also provide examples of their use.
 
 <ul>
 <li><span class="MATH"><IMG
- STYLE="height: 2.34ex; vertical-align: -0.57ex; " SRC="img4.svg"
+ STYLE="height: 2.10ex; vertical-align: -0.56ex; " SRC="img4.svg"
  ALT="$empty$"></span>, <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img5.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img5.svg"
  ALT="$all$"></span>
   <dl>
 <dt><strong><i>Description:</i></strong></dt>
@@ -927,7 +927,7 @@ arrays, and assignment of such arrays. We also provide examples of their use.
 <p>
 </li>
 <li><span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img37.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img37.svg"
  ALT="$d$"></span>
 
 <p>
@@ -951,7 +951,7 @@ arrays, and assignment of such arrays. We also provide examples of their use.
  $iexp..iexp'$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.65ex; vertical-align: -0.57ex; " SRC="img61.svg"
+ STYLE="height: 2.60ex; vertical-align: -0.56ex; " SRC="img61.svg"
  ALT="$iexp..iexp'$"></span>
 
 <p>
@@ -979,7 +979,7 @@ arrays, and assignment of such arrays. We also provide examples of their use.
  $\{set\_el_1,\ldots, set\_el_m\}$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img62.svg"
+ STYLE="height: 2.64ex; vertical-align: -0.67ex; " SRC="img62.svg"
  ALT="$\{set\_el_1,\ldots, set\_el_m\}$"></span>
 
 <p>
@@ -1008,7 +1008,7 @@ arrays, and assignment of such arrays. We also provide examples of their use.
  $\{ set\_el\_var : bexp \}$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img63.svg"
+ STYLE="height: 2.64ex; vertical-align: -0.67ex; " SRC="img63.svg"
  ALT="$\{ set\_el\_var : bexp \}$"></span>
 
 <p>
@@ -1038,14 +1038,14 @@ arrays, and assignment of such arrays. We also provide examples of their use.
  $(bnd_1,\ldots,bnd_n)$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img64.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img64.svg"
  ALT="$(bnd_1,\ldots,bnd_n)$"></span>
 
 <p>
 <dl>
 <dt><strong><i>Description:</i></strong></dt>
 <dd><span  class="textit">cartesian product bound</span> formed from <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img28.svg"
+ STYLE="height: 1.43ex; vertical-align: -0.14ex; " SRC="img28.svg"
  ALT="$n$"></span>
     bounds.
 
@@ -1061,7 +1061,7 @@ arrays, and assignment of such arrays. We also provide examples of their use.
  $10\times 25$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.15ex; vertical-align: -0.31ex; " SRC="img65.svg"
+ STYLE="height: 2.14ex; vertical-align: -0.30ex; " SRC="img65.svg"
  ALT="$10\times 25$"></span> dense matrix,
     formed from two 1-D bounds.
 
@@ -1075,7 +1075,7 @@ arrays, and assignment of such arrays. We also provide examples of their use.
  $aexp\ index\_exp$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img66.svg"
+ STYLE="height: 2.42ex; vertical-align: -0.56ex; " SRC="img66.svg"
  ALT="$aexp\ index\_exp$"></span>
 
 <p>
@@ -1087,7 +1087,7 @@ arrays, and assignment of such arrays. We also provide examples of their use.
 </dd>
 <dt><strong><i>Example:</i></strong></dt>
 <dd><span  class="texttt">[i..i+5 : i in 1..10][3]</span> <span class="MATH"><IMG
- STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ STYLE="height: 1.25ex; vertical-align: -0.11ex; " SRC="img67.svg"
  ALT="$=$"></span> <span  class="texttt">3..8</span>
 
 <p>
@@ -1103,7 +1103,7 @@ arrays, and assignment of such arrays. We also provide examples of their use.
 
 <p>
 In addition there are a number of functions that return bounds. See
-Section&nbsp;<a href="#sec-function"><img  alt="[*]" src="crossref.png"></a>.
+Section&nbsp;<a href="#sec-function">4</a>.
 
 <p>
 
@@ -1115,7 +1115,7 @@ Section&nbsp;<a href="#sec-function"><img  alt="[*]" src="crossref.png"></a>.
 
 <ul>
 <li><span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img36.svg"
+ STYLE="height: 1.43ex; vertical-align: -0.14ex; " SRC="img36.svg"
  ALT="$a$"></span>
 
 <p>
@@ -1140,7 +1140,7 @@ Section&nbsp;<a href="#sec-function"><img  alt="[*]" src="crossref.png"></a>.
  $[exp\ :\ set\_el\_var\ in\ bnd]$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img68.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img68.svg"
  ALT="$[exp\ :\ set\_el\_var\ in\ bnd]$"></span>
 
 <p>
@@ -1170,7 +1170,7 @@ Section&nbsp;<a href="#sec-function"><img  alt="[*]" src="crossref.png"></a>.
  $forall\ set\_el\_var \to exp$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img69.svg"
+ STYLE="height: 2.43ex; vertical-align: -0.58ex; " SRC="img69.svg"
  ALT="$forall\ set\_el\_var \to exp$"></span>
 
 <p>
@@ -1201,16 +1201,16 @@ Section&nbsp;<a href="#sec-function"><img  alt="[*]" src="crossref.png"></a>.
  $aexp \, | \, bnd$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img70.svg"
+ STYLE="height: 2.64ex; vertical-align: -0.67ex; " SRC="img70.svg"
  ALT="$aexp \, \vert \, bnd$"></span>
 
 <p>
 <dl>
 <dt><strong><i>Description:</i></strong></dt>
 <dd>subarray of <span class="MATH"><IMG
- STYLE="height: 1.91ex; vertical-align: -0.57ex; " SRC="img31.svg"
+ STYLE="height: 1.86ex; vertical-align: -0.56ex; " SRC="img31.svg"
  ALT="$aexp$"></span> defined by <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img2.svg"
  ALT="$bnd$"></span>.
 
 <p>
@@ -1234,7 +1234,7 @@ Section&nbsp;<a href="#sec-function"><img  alt="[*]" src="crossref.png"></a>.
  $aexp\ index\_exp$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img66.svg"
+ STYLE="height: 2.42ex; vertical-align: -0.56ex; " SRC="img66.svg"
  ALT="$aexp\ index\_exp$"></span>
 
 <p>
@@ -1264,7 +1264,7 @@ Section&nbsp;<a href="#sec-function"><img  alt="[*]" src="crossref.png"></a>.
  $[preamble\ elist(n)]$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img71.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img71.svg"
  ALT="$[preamble\ elist(n)]$"></span>
 
 <p>
@@ -1272,13 +1272,13 @@ Section&nbsp;<a href="#sec-function"><img  alt="[*]" src="crossref.png"></a>.
 <dt><strong><i>Description:</i></strong></dt>
 <dd>dense, possibly multidimensional, explicit array
     expression. &ldquo;<span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img72.svg"
+ STYLE="height: 2.42ex; vertical-align: -0.56ex; " SRC="img72.svg"
  ALT="$preamble$"></span>&rdquo; specifies the (possibly multi-dimensional)
     dense bounds. Bounds can be omitted, and then defaults to a bound with
     lower limit <span class="MATH">0</span>. &ldquo;<span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img73.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img73.svg"
  ALT="$elist(n)$"></span>&rdquo; specifies an <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img28.svg"
+ STYLE="height: 1.43ex; vertical-align: -0.14ex; " SRC="img28.svg"
  ALT="$n$"></span>-dimensional array, and
     it is a possibly nested, semicolon-separated list of lists where the
     lowest level specifies the array elements in comma-separated lists.
@@ -1361,7 +1361,7 @@ Section&nbsp;<a href="#sec-function"><img  alt="[*]" src="crossref.png"></a>.
  $[set\_el\_exp_1 : exp_1, \ldots, set\_el\_exp_n : exp_n]$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img74.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img74.svg"
  ALT="$[set\_el\_exp_1 : exp_1, \ldots, set\_el\_exp_n : exp_n]$"></span>
 
 <p>
@@ -1393,7 +1393,7 @@ Section&nbsp;<a href="#sec-function"><img  alt="[*]" src="crossref.png"></a>.
 
 <p>
 In addition there are a number of functions that return arrays. See
-Section&nbsp;<a href="#sec-function"><img  alt="[*]" src="crossref.png"></a>.
+Section&nbsp;<a href="#sec-function">4</a>.
 
 <p>
 
@@ -1408,7 +1408,7 @@ Section&nbsp;<a href="#sec-function"><img  alt="[*]" src="crossref.png"></a>.
  $a\ =\ aexp$
  -->
 <span class="MATH"><IMG
- STYLE="height: 1.91ex; vertical-align: -0.57ex; " SRC="img75.svg"
+ STYLE="height: 1.86ex; vertical-align: -0.56ex; " SRC="img75.svg"
  ALT="$a\ =\ aexp$"></span>
 
 <p>
@@ -1416,9 +1416,9 @@ Section&nbsp;<a href="#sec-function"><img  alt="[*]" src="crossref.png"></a>.
 <dt><strong><i>Description:</i></strong></dt>
 <dd>creates a new abstract array by evaluating
     <span class="MATH"><IMG
- STYLE="height: 1.91ex; vertical-align: -0.57ex; " SRC="img31.svg"
+ STYLE="height: 1.86ex; vertical-align: -0.56ex; " SRC="img31.svg"
  ALT="$aexp$"></span>, and sets <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img36.svg"
+ STYLE="height: 1.43ex; vertical-align: -0.14ex; " SRC="img36.svg"
  ALT="$a$"></span> to hold it.
 
 <p>
@@ -1442,7 +1442,7 @@ Section&nbsp;<a href="#sec-function"><img  alt="[*]" src="crossref.png"></a>.
  $a\ index\_exp_1 \cdots index\_exp_n\ =\ exp$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img76.svg"
+ STYLE="height: 2.42ex; vertical-align: -0.56ex; " SRC="img76.svg"
  ALT="$a\ index\_exp_1 \cdots index\_exp_n\ =\ exp$"></span>
 
 <p>
@@ -1472,7 +1472,7 @@ Section&nbsp;<a href="#sec-function"><img  alt="[*]" src="crossref.png"></a>.
  $foreach\ set\_el\_var\ in\ bnd\ do\ a\ index\_exp_1 \cdots index\_exp_n\ =\ exp$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img77.svg"
+ STYLE="height: 2.43ex; vertical-align: -0.58ex; " SRC="img77.svg"
  ALT="$foreach\ set\_el\_var\ in\ bnd\ do\ a\ index\_exp_1 \cdots index\_exp_n\ =\ exp$"></span>
 
 <p>
@@ -1483,24 +1483,24 @@ Section&nbsp;<a href="#sec-function"><img  alt="[*]" src="crossref.png"></a>.
  $a\ index\_exp_1 \cdots index\_exp_n$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img78.svg"
+ STYLE="height: 2.42ex; vertical-align: -0.56ex; " SRC="img78.svg"
  ALT="$a\ index\_exp_1 \cdots index\_exp_n$"></span> is set to <span class="MATH"><IMG
- STYLE="height: 1.91ex; vertical-align: -0.57ex; " SRC="img79.svg"
+ STYLE="height: 1.86ex; vertical-align: -0.56ex; " SRC="img79.svg"
  ALT="$exp$"></span> for all values of
     <!-- MATH
  $set\_el\_var$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img52.svg"
+ STYLE="height: 2.01ex; vertical-align: -0.15ex; " SRC="img52.svg"
  ALT="$set\_el\_var$"></span> that belong to <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img2.svg"
  ALT="$bnd$"></span> and where <span class="MATH"><IMG
- STYLE="height: 1.91ex; vertical-align: -0.57ex; " SRC="img79.svg"
+ STYLE="height: 1.86ex; vertical-align: -0.56ex; " SRC="img79.svg"
  ALT="$exp$"></span> is defined. Note
     that if <span class="MATH"><IMG
- STYLE="height: 2.05ex; vertical-align: -0.21ex; " SRC="img29.svg"
+ STYLE="height: 2.01ex; vertical-align: -0.20ex; " SRC="img29.svg"
  ALT="$n &gt; 1$"></span> or <span class="MATH"><IMG
- STYLE="height: 2.05ex; vertical-align: -0.21ex; " SRC="img80.svg"
+ STYLE="height: 2.01ex; vertical-align: -0.20ex; " SRC="img80.svg"
  ALT="$m&gt;1$"></span> then the corresponding array is nested.
 
 <p>
@@ -1554,7 +1554,7 @@ Section&nbsp;<a href="#sec-function"><img  alt="[*]" src="crossref.png"></a>.
 <dt><strong><i>Example (write out of bounds):</i></strong></dt>
 <dd><span  class="texttt">foreach i in 1..10 do
     x[i] = y[i]</span>, where <span  class="texttt">bound(x)</span> <span class="MATH"><IMG
- STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ STYLE="height: 1.25ex; vertical-align: -0.11ex; " SRC="img67.svg"
  ALT="$=$"></span> <span  class="texttt">1..9</span>
 
 <p>
@@ -1601,57 +1601,57 @@ For example, for an ambiguous expression like <!-- MATH
  $arr \mathbin|bnd_1 \mathbin|bnd_2$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img81.svg"
+ STYLE="height: 2.64ex; vertical-align: -0.67ex; " SRC="img81.svg"
  ALT="$arr \mathbin\vert bnd_1 \mathbin\vert bnd_2$"></span>, only the interpretation
 <!-- MATH
  $(arr \mathbin|bnd_1) \mathbin|bnd_2$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img82.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img82.svg"
  ALT="$(arr \mathbin\vert bnd_1) \mathbin\vert bnd_2$"></span> makes sense, since the alternative interpretation
 <!-- MATH
  $arr \mathbin|(bnd_1 \mathbin|bnd_2)$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img83.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img83.svg"
  ALT="$arr \mathbin\vert(bnd_1 \mathbin\vert bnd_2)$"></span> would give rise to a type error in the second slicing operation.
 However, one true source of ambiguity is when a <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img7.svg"
+ STYLE="height: 2.43ex; vertical-align: -0.58ex; " SRC="img7.svg"
  ALT="$forall$"></span> expression is immediately followed by an
 array slicing operation.
 For example, the expression <!-- MATH
  $forall\ i \rightarrow arr[i] \mathbin|bnd$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img84.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img84.svg"
  ALT="$forall\ i \rightarrow arr[i] \mathbin\vert bnd$"></span> could be interpreted either as
 <!-- MATH
  $(forall\ i \rightarrow arr[i]) \mathbin|bnd$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img85.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img85.svg"
  ALT="$(forall\ i \rightarrow arr[i]) \mathbin\vert bnd$"></span> or as <!-- MATH
  $forall\ i \rightarrow (arr[i] \mathbin|bnd)$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img86.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img86.svg"
  ALT="$forall\ i \rightarrow (arr[i] \mathbin\vert bnd)$"></span>,
 where the second variant can make sense if <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img87.svg"
+ STYLE="height: 1.43ex; vertical-align: -0.14ex; " SRC="img87.svg"
  ALT="$arr$"></span> is an array of arrays.
 This ambiguity has been resolved in favor of the first variant, as using the <span  class="texttt">|</span> operator to slice
 the result of a <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img7.svg"
+ STYLE="height: 2.43ex; vertical-align: -0.58ex; " SRC="img7.svg"
  ALT="$forall$"></span> expression should be the more common use case.
 In the case of nested forall expressions followed by a slicing operation,
 <!-- MATH
  $forall\ i \rightarrow forall\ j \rightarrow \ldots \mathbin|bnd$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img88.svg"
+ STYLE="height: 2.64ex; vertical-align: -0.67ex; " SRC="img88.svg"
  ALT="$forall\ i \rightarrow forall\ j \rightarrow \ldots \mathbin\vert bnd$"></span>, an ambiguity arises as to which
 <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img7.svg"
+ STYLE="height: 2.43ex; vertical-align: -0.58ex; " SRC="img7.svg"
  ALT="$forall$"></span> expression the slicing should be attached to.
 Analogously to how the classical &ldquo;dangling else&rdquo; problem is commonly resolved, HERO-ML lets this
 &ldquo;dangling slice&rdquo; be attached to the rightmost forall expression.
@@ -1728,7 +1728,7 @@ The HERO-ML grammar has a case <!-- MATH
  $fun(exp_1,\ldots,exp_n)$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img89.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img89.svg"
  ALT="$fun(exp_1,\ldots,exp_n)$"></span> for functions. This
 case is matched by a number of functions in HERO-ML, where some provide
 important features. We therefore give an account here for the functions in
@@ -1756,7 +1756,7 @@ Boolean Functions, and Operators</a>
  $not : bool \to bool$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img90.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img90.svg"
  ALT="$not : bool \to bool$"></span> provides logical negation.
 
 <p>
@@ -1766,9 +1766,9 @@ Boolean Functions, and Operators</a>
 
 <p>
 The boolean operators <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img91.svg"
+ STYLE="height: 2.64ex; vertical-align: -0.67ex; " SRC="img91.svg"
  ALT="$\vert\vert$"></span>, <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img92.svg"
+ STYLE="height: 1.95ex; vertical-align: -0.14ex; " SRC="img92.svg"
  ALT="$\&amp;\&amp;$"></span> have a semantics where their
 arguments are evaluated from left to right, and the evaluation is stopped as
 soon as the outcome is known. Thus, they are <span  class="textit">non-strict</span> in their
@@ -1787,10 +1787,10 @@ HERO-ML has a conditional function <!-- MATH
  $if : (bool,\alpha,\alpha)\to\alpha$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img93.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img93.svg"
  ALT="$if : (bool,\alpha,\alpha)\to\alpha$"></span>,
 where <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img17.svg"
+ STYLE="height: 1.57ex; vertical-align: -0.15ex; " SRC="img17.svg"
  ALT="$\alpha$"></span> is a type variable.
 
 <p>
@@ -1816,10 +1816,10 @@ Test for Undefined Value
  $isDef : \alpha \to bool$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img94.svg"
+ STYLE="height: 2.43ex; vertical-align: -0.58ex; " SRC="img94.svg"
  ALT="$isDef : \alpha \to bool$"></span> tests whether or not its argument is different
 from the undefined value &ldquo;<span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img8.svg"
+ STYLE="height: 1.94ex; vertical-align: -0.13ex; " SRC="img8.svg"
  ALT="$?$"></span>&rdquo;.
 
 <p>
@@ -1830,9 +1830,9 @@ from the undefined value &ldquo;<span class="MATH"><IMG
 <p>
 
 <span  class="textit">Examples</span>: <span  class="texttt">isDef(17)</span> <span class="MATH"><IMG
- STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ STYLE="height: 1.25ex; vertical-align: -0.11ex; " SRC="img67.svg"
  ALT="$=$"></span> <span  class="texttt">true</span>, <span  class="texttt">isDef(?)</span> <span class="MATH"><IMG
- STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ STYLE="height: 1.25ex; vertical-align: -0.11ex; " SRC="img67.svg"
  ALT="$=$"></span>
 <span  class="texttt">false</span>.
 
@@ -1847,12 +1847,12 @@ Functions on Abstract Arrays</a>
  $bound : (Array\ \iota\ \alpha) \to Bound\ \iota$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img95.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img95.svg"
  ALT="$bound : (Array\ \iota\ \alpha) \to Bound\ \iota$"></span>. <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img96.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img96.svg"
  ALT="$bound(a)$"></span> extracts the
 bound from the array <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img36.svg"
+ STYLE="height: 1.43ex; vertical-align: -0.14ex; " SRC="img36.svg"
  ALT="$a$"></span>.
 
 <p>
@@ -1863,7 +1863,7 @@ bound from the array <span class="MATH"><IMG
 <p>
 
 <span  class="textit">Example</span>: <span  class="texttt">bound([2..4 : 1,3,2])</span> <span class="MATH"><IMG
- STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ STYLE="height: 1.25ex; vertical-align: -0.11ex; " SRC="img67.svg"
  ALT="$=$"></span> <span  class="texttt">2..4</span>.
 
 <p>
@@ -1877,18 +1877,18 @@ bound from the array <span class="MATH"><IMG
  $reduce : ((\alpha,\alpha) \to \alpha, Array\ \iota\ \alpha) \to \alpha$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img97.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img97.svg"
  ALT="$reduce : ((\alpha,\alpha) \to \alpha, Array\ \iota\ \alpha) \to \alpha$"></span>.
 <!-- MATH
  $reduce(f,a)$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img98.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img98.svg"
  ALT="$reduce(f,a)$"></span> &ldquo;sums&rdquo; the elements in the array <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img36.svg"
+ STYLE="height: 1.43ex; vertical-align: -0.14ex; " SRC="img36.svg"
  ALT="$a$"></span> using the binary
 function/operator <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img3.svg"
+ STYLE="height: 2.39ex; vertical-align: -0.58ex; " SRC="img3.svg"
  ALT="$f$"></span>.
 
 <p>
@@ -1899,9 +1899,9 @@ function/operator <span class="MATH"><IMG
 <p>
 
 <span  class="textit">Example</span>: <span  class="texttt">reduce(+,[2..4 : 1,3,2])</span> <span class="MATH"><IMG
- STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ STYLE="height: 1.25ex; vertical-align: -0.11ex; " SRC="img67.svg"
  ALT="$=$"></span> <span  class="texttt">1 + 3 + 2</span> <span class="MATH"><IMG
- STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ STYLE="height: 1.25ex; vertical-align: -0.11ex; " SRC="img67.svg"
  ALT="$=$"></span>
 <span  class="texttt">6</span>.
 
@@ -1916,16 +1916,16 @@ function/operator <span class="MATH"><IMG
  $scan : ((\alpha,\alpha) \to \alpha, Array\ \iota\ \alpha) \to Array\ \iota\ \alpha$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img99.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img99.svg"
  ALT="$scan : ((\alpha,\alpha) \to \alpha, Array\ \iota\ \alpha) \to Array\ \iota\ \alpha$"></span>.
 Like <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img9.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img9.svg"
  ALT="$reduce$"></span>, but computes an array with all the&ldquo;partial sums&rdquo;. The bound
 is the same as for <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img36.svg"
+ STYLE="height: 1.43ex; vertical-align: -0.14ex; " SRC="img36.svg"
  ALT="$a$"></span>, and the &ldquo;partial sums&rdquo; are computed in the
 lexicographic order over <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img96.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img96.svg"
  ALT="$bound(a)$"></span>.
 
 <p>
@@ -1936,7 +1936,7 @@ lexicographic order over <span class="MATH"><IMG
 <p>
 
 <span  class="textit">Example</span>: <span  class="texttt">scan(+,[2..4 : 1,3,2])</span> <span class="MATH"><IMG
- STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ STYLE="height: 1.25ex; vertical-align: -0.11ex; " SRC="img67.svg"
  ALT="$=$"></span>
 <span  class="texttt">[2..4 : 1,4,6]</span>
 
@@ -1950,7 +1950,7 @@ Functions on Bounds</a>
 HERO-ML has many functions on bounds. Many of these are used to implement
 the implicit derivation of bounds that takes place when array-valued
 expressions, such as <span class="MATH"><IMG
- STYLE="height: 2.52ex; vertical-align: -0.57ex; " SRC="img7.svg"
+ STYLE="height: 2.43ex; vertical-align: -0.58ex; " SRC="img7.svg"
  ALT="$forall$"></span>-expressions, are evaluated. They are exposed
 at the user level primarily to allow the manual tailoring of bounds in cases
 when the implicit bounds derivation does not yield a satisfactory
@@ -1968,19 +1968,19 @@ they have certain prescribed properties) can be used as bounds.
  $member : (\iota, Bounds\ \iota) \to bool$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img100.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img100.svg"
  ALT="$member : (\iota, Bounds\ \iota) \to bool$"></span>: <!-- MATH
  $member(i,bnd)$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img101.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img101.svg"
  ALT="$member(i,bnd)$"></span> returns
 <span class="MATH"><IMG
- STYLE="height: 1.89ex; vertical-align: -0.12ex; " SRC="img102.svg"
+ STYLE="height: 1.67ex; vertical-align: -0.14ex; " SRC="img102.svg"
  ALT="$true$"></span> when <span class="MATH"><IMG
- STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img34.svg"
+ STYLE="height: 1.91ex; vertical-align: -0.14ex; " SRC="img34.svg"
  ALT="$i$"></span> is a member of the set defined by <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img2.svg"
  ALT="$bnd$"></span>.
 
 <p>
@@ -1994,18 +1994,18 @@ they have certain prescribed properties) can be used as bounds.
 Bounds\ \iota$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img103.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img103.svg"
  ALT="$join, meet : (Bounds\ \iota, Bounds\ \iota) \to
 Bounds\ \iota$"></span>. Lattice-theoretical <span class="MATH"><IMG
- STYLE="height: 1.75ex; vertical-align: -0.12ex; " SRC="img104.svg"
+ STYLE="height: 1.66ex; vertical-align: -0.11ex; " SRC="img104.svg"
  ALT="$\sqcup$"></span> and <span class="MATH"><IMG
- STYLE="height: 1.75ex; vertical-align: -0.12ex; " SRC="img105.svg"
+ STYLE="height: 1.66ex; vertical-align: -0.11ex; " SRC="img105.svg"
  ALT="$\sqcap$"></span>, respectively, in
 the lattice of bounds over <!-- MATH
  $Bounds\ \iota$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img18.svg"
+ STYLE="height: 2.01ex; vertical-align: -0.15ex; " SRC="img18.svg"
  ALT="$Bounds\ \iota$"></span> (approximating set union and
 -intersection). Their semantics are given in Section&nbsp;<a href="#sec-jm"><img  alt="[*]" src="crossref.png"></a>.
 
@@ -2017,10 +2017,10 @@ the lattice of bounds over <!-- MATH
 <p>
 
 <span  class="textit">Example</span> (dense 1-D bounds): <span  class="texttt">meet(1..10,5..30)</span> <span class="MATH"><IMG
- STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ STYLE="height: 1.25ex; vertical-align: -0.11ex; " SRC="img67.svg"
  ALT="$=$"></span>
 <span  class="texttt">5..10</span>, <span  class="texttt">join(1..10,20..30)</span> <span class="MATH"><IMG
- STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ STYLE="height: 1.25ex; vertical-align: -0.11ex; " SRC="img67.svg"
  ALT="$=$"></span> <span  class="texttt">1..30</span>.
 
 <p>
@@ -2033,7 +2033,7 @@ the lattice of bounds over <!-- MATH
  $isDense, isSparse, isPredicate, isProduct : (Bounds\ \iota) \to bool$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img106.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img106.svg"
  ALT="$isDense, isSparse, isPredicate, isProduct : (Bounds\ \iota) \to bool$"></span>:
 they all test whether their arguments are of the corresponding type.
 
@@ -2047,20 +2047,20 @@ they all test whether their arguments are of the corresponding type.
  $finite : (Bounds\ \iota) \to bool$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img107.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img107.svg"
  ALT="$finite : (Bounds\ \iota) \to bool$"></span>:
  <!-- MATH
  $finite(bnd)$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img108.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img108.svg"
  ALT="$finite(bnd)$"></span> is true iff <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img2.svg"
  ALT="$bnd$"></span> is classified as finite (<span  class="textit">i.e.</span>, if <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img2.svg"
  ALT="$bnd$"></span> is
 dense, sparse, <span class="MATH"><IMG
- STYLE="height: 2.34ex; vertical-align: -0.57ex; " SRC="img4.svg"
+ STYLE="height: 2.10ex; vertical-align: -0.56ex; " SRC="img4.svg"
  ALT="$empty$"></span>, or a product of finite bounds).
 
 <p>
@@ -2073,12 +2073,12 @@ dense, sparse, <span class="MATH"><IMG
  $size : (Bounds\ \iota) \to int$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img109.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img109.svg"
  ALT="$size : (Bounds\ \iota) \to int$"></span>: <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img110.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img110.svg"
  ALT="$size(bnd)$"></span> returns the number of
 elements in the finite bound <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img2.svg"
  ALT="$bnd$"></span>. It is undefined for infinite bounds.
 
 <p>
@@ -2091,21 +2091,21 @@ elements in the finite bound <span class="MATH"><IMG
  $enum : (Bounds\ \iota) \to Array\ int\ \iota$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img111.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img111.svg"
  ALT="$enum : (Bounds\ \iota) \to Array\ int\ \iota$"></span>: <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img112.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img112.svg"
  ALT="$enum(bnd)$"></span>
 provides an enumeration of the elements in the finite bound <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img2.svg"
  ALT="$bnd$"></span>, in
 lexicographic order, in the form of an array with bound <!-- MATH
  $0..size(bnd)-1$
  -->
 <span class="MATH"><IMG
- STYLE="height: 2.78ex; vertical-align: -0.70ex; " SRC="img113.svg"
+ STYLE="height: 2.66ex; vertical-align: -0.67ex; " SRC="img113.svg"
  ALT="$0..size(bnd)-1$"></span>
 containing the elements of <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img2.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img2.svg"
  ALT="$bnd$"></span> in this order. Undefined for infinite
 bounds.
 
@@ -2117,7 +2117,7 @@ bounds.
 <p>
 
 <span  class="textit">Example</span> (sparse 1-D bound): <code>enum({3,1,7})</code> <span class="MATH"><IMG
- STYLE="height: 1.31ex; vertical-align: -0.12ex; " SRC="img67.svg"
+ STYLE="height: 1.25ex; vertical-align: -0.11ex; " SRC="img67.svg"
  ALT="$=$"></span>
 <span  class="texttt">[0..2 : 1,3,7]</span>.
 
@@ -2129,13 +2129,13 @@ bounds.
 <p>
 
 <span  class="textit">Note</span>: <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img114.svg"
+ STYLE="height: 1.43ex; vertical-align: -0.14ex; " SRC="img114.svg"
  ALT="$enum$"></span> is currently not visible in HERO-ML. It is however
 visible (and used) in intermediate layers. It is also used in the
 semantics for functions such as <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img9.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img9.svg"
  ALT="$reduce$"></span>, and <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img10.svg"
+ STYLE="height: 1.45ex; vertical-align: -0.14ex; " SRC="img10.svg"
  ALT="$scan$"></span>.
 
 <p>
@@ -2150,12 +2150,12 @@ I/O
 To allow programs to communicate with the surrounding environment, HERO-ML
 provides a simple model where programs have access to an input pipe and an
 output pipe. HERO-ML values can be read using the &ldquo;<span class="MATH"><IMG
- STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img115.svg"
+ STYLE="height: 1.91ex; vertical-align: -0.14ex; " SRC="img115.svg"
  ALT="$in$"></span>&rdquo; operator, and
 written using an <span class="MATH"><IMG
- STYLE="height: 1.89ex; vertical-align: -0.12ex; " SRC="img116.svg"
+ STYLE="height: 1.67ex; vertical-align: -0.14ex; " SRC="img116.svg"
  ALT="$out$"></span> statement.  In the abstract syntax in
-Section&nbsp;<a href="#sec-spec"><img  alt="[*]" src="crossref.png"></a> the grammars for expressions, and
+Section&nbsp;<a href="#sec-spec">3</a> the grammars for expressions, and
 statements are extended with the following cases:
 <p><!-- MATH
  \begin{displaymath}
@@ -2168,23 +2168,23 @@ exp  & \to & in\ type\\
 </p>
 <div class="displaymath">
 <IMG
- STYLE="height: 6.02ex; vertical-align: -2.32ex; " SRC="img117.svg"
+ STYLE="height: 5.76ex; vertical-align: -2.22ex; " SRC="img117.svg"
  ALT="$\displaystyle \begin{array}{rcl}
 exp &amp; \to &amp; in\ type\\
 s &amp; \to &amp; out\ \vert\ out\ exp\ \vert\ out\ exp_1,\ldots,exp_n
 \end{array}$">
 </div><p></p>
 Thus <span class="MATH"><IMG
- STYLE="height: 2.44ex; vertical-align: -0.57ex; " SRC="img118.svg"
+ STYLE="height: 2.33ex; vertical-align: -0.56ex; " SRC="img118.svg"
  ALT="$in\ type$"></span> reads a HERO-ML value of type <span class="MATH"><IMG
- STYLE="height: 2.34ex; vertical-align: -0.57ex; " SRC="img27.svg"
+ STYLE="height: 2.10ex; vertical-align: -0.56ex; " SRC="img27.svg"
  ALT="$type$"></span> from the input pipe,
 and <span class="MATH"><IMG
- STYLE="height: 2.34ex; vertical-align: -0.57ex; " SRC="img119.svg"
+ STYLE="height: 2.10ex; vertical-align: -0.56ex; " SRC="img119.svg"
  ALT="$out\ exp$"></span> writes the value of <span class="MATH"><IMG
- STYLE="height: 1.91ex; vertical-align: -0.57ex; " SRC="img79.svg"
+ STYLE="height: 1.86ex; vertical-align: -0.56ex; " SRC="img79.svg"
  ALT="$exp$"></span> to the output pipe. <span class="MATH"><IMG
- STYLE="height: 1.89ex; vertical-align: -0.12ex; " SRC="img116.svg"
+ STYLE="height: 1.67ex; vertical-align: -0.14ex; " SRC="img116.svg"
  ALT="$out$"></span> can also
 write multiple expressions given as a comma-separated list, and it can
 also be executed without any arguments in which case a kind of marker is
@@ -2192,20 +2192,20 @@ written to the output pipe.
 
 <p>
 <span class="MATH"><IMG
- STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img115.svg"
+ STYLE="height: 1.91ex; vertical-align: -0.14ex; " SRC="img115.svg"
  ALT="$in$"></span> has to be typed since HERO-ML is a strongly and explicitly typed
 language. Reading a value of the wrong type will give a runtime error.
 
 <p>
 Values of any type can be read and written: however they will always be
 evaluated. For example, the statement <span class="MATH"><IMG
- STYLE="height: 2.34ex; vertical-align: -0.57ex; " SRC="img120.svg"
+ STYLE="height: 2.18ex; vertical-align: -0.56ex; " SRC="img120.svg"
  ALT="$out\ x+y$"></span> evaluates the expression
 <span class="MATH"><IMG
- STYLE="height: 2.26ex; vertical-align: -0.57ex; " SRC="img121.svg"
+ STYLE="height: 2.18ex; vertical-align: -0.56ex; " SRC="img121.svg"
  ALT="$x+y$"></span> and then writes the result to the output pipe. An example of the use
 of <span class="MATH"><IMG
- STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img115.svg"
+ STYLE="height: 1.91ex; vertical-align: -0.14ex; " SRC="img115.svg"
  ALT="$in$"></span> is the following:
 <p><!-- MATH
  \begin{displaymath}
@@ -2215,23 +2215,23 @@ x = 23 + {in\ int} * y
 </p>
 <div class="displaymath">
 <IMG
- STYLE="height: 2.44ex; vertical-align: -0.57ex; " SRC="img122.svg"
+ STYLE="height: 2.38ex; vertical-align: -0.56ex; " SRC="img122.svg"
  ALT="$\displaystyle x = 23 + {in\ int} * y
 $">
 </div><p></p>
 Here an integer value is read from the input pipe, it is multiplied
  by the variable <span class="MATH"><IMG
- STYLE="height: 1.91ex; vertical-align: -0.57ex; " SRC="img123.svg"
+ STYLE="height: 1.86ex; vertical-align: -0.56ex; " SRC="img123.svg"
  ALT="$y$"></span>, 23 is added, and then result is stored in the
 variable <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img124.svg"
+ STYLE="height: 1.43ex; vertical-align: -0.14ex; " SRC="img124.svg"
  ALT="$x$"></span>.
 
 <p>
 HERO-ML only knows the <span class="MATH"><IMG
- STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img115.svg"
+ STYLE="height: 1.91ex; vertical-align: -0.14ex; " SRC="img115.svg"
  ALT="$in$"></span> and <span class="MATH"><IMG
- STYLE="height: 1.89ex; vertical-align: -0.12ex; " SRC="img116.svg"
+ STYLE="height: 1.67ex; vertical-align: -0.14ex; " SRC="img116.svg"
  ALT="$out$"></span> primitives for communicating with the
 environment. It hs no means to connect the input and output pipes to any
 particular channels. What these pipes are connected to can therefore be
@@ -2295,18 +2295,18 @@ characteristics:
 ANN's are mimicking this. There are many variations. A claassical example is
 the <span  class="textit">McCulloch-Pitts neuron</span>, where the activity level of a neuron is
 computed by thresholding a weighted sum of the activity levels of its
-neighbours. See Fig.&nbsp;<a href="#fig-pitts"><img  alt="[*]" src="crossref.png"></a>.
+neighbours. See Fig.&nbsp;<a href="#fig-pitts">2</a>.
 
 <p>
 
-<div class="CENTER"><a id="fig-pitts"></a><a id="430"></a>
+<div class="CENTER"><a id="fig-pitts"></a><a id="431"></a>
 <table>
-<caption class="BOTTOM"><strong>Figure:</strong>
+<caption class="BOTTOM"><strong>Figure 2:</strong>
 McCulloch-Pitts neuron.</caption>
 <tr><td>
 <div class="CENTER">
 <IMG
- STYLE="height: 10.50ex; vertical-align: -0.12ex; " SRC="img125.svg"
+ STYLE="height: 14.44ex; vertical-align: -0.11ex; " SRC="img125.svg"
  ALT="\includegraphics[scale=0.6, clip]{pitts.pdf}">
   
 </div></td></tr>
@@ -2321,14 +2321,14 @@ Feed-Forward Networks</a>
 
 <p>
 
-<div class="CENTER"><a id="fig-layers"></a><a id="438"></a>
+<div class="CENTER"><a id="fig-layers"></a><a id="439"></a>
 <table>
-<caption class="BOTTOM"><strong>Figure:</strong>
+<caption class="BOTTOM"><strong>Figure 3:</strong>
 Layers in a feed-forward network.</caption>
 <tr><td>
 <div class="CENTER">
 <IMG
- STYLE="width: 40em" SRC="img126.svg"
+ STYLE="height: 31.64ex; vertical-align: -0.11ex; " SRC="img126.svg"
  ALT="\includegraphics[scale=0.6, clip]{layers.pdf}">
   
 </div></td></tr>
@@ -2338,11 +2338,11 @@ Layers in a feed-forward network.</caption>
 <p>
 In a <span  class="textit">feed-forward network</span> the units are arranged in a number of
 <span  class="textit">layers</span>, where each interconnection goes from some layer <span class="MATH"><IMG
- STYLE="height: 2.26ex; vertical-align: -0.31ex; " SRC="img127.svg"
+ STYLE="height: 2.15ex; vertical-align: -0.30ex; " SRC="img127.svg"
  ALT="$l-1$"></span> to
 layer <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img128.svg"
- ALT="$l$"></span>. See Fig.&nbsp;<a href="#fig-layers"><img  alt="[*]" src="crossref.png"></a>. There are three kinds of layers:
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img128.svg"
+ ALT="$l$"></span>. See Fig.&nbsp;<a href="#fig-layers">3</a>. There are three kinds of layers:
 
 <ul>
 <li>an <span  class="textit">input</span> layer, which provides the input to the ANN,
@@ -2351,7 +2351,7 @@ layer <span class="MATH"><IMG
 </li>
 <li>a number of <span  class="textit">hidden</span> layers, which contain units
   interconnected between layers similarly to the McCulloch-Pitts neuron in
-  Fig.&nbsp;<a href="#fig-pitts"><img  alt="[*]" src="crossref.png"></a>, and
+  Fig.&nbsp;<a href="#fig-pitts">2</a>, and
 
 <p>
 </li>
@@ -2369,13 +2369,13 @@ object in the picture.
 <p>
 Each unit in a hidden layer computes its output as a weighted, thresholded
 sum of the outputs of the connected units in the previous layers,
-similarly to the McCulloch-Pitts neuron in Fig.&nbsp;<a href="#fig-pitts"><img  alt="[*]" src="crossref.png"></a>.
+similarly to the McCulloch-Pitts neuron in Fig.&nbsp;<a href="#fig-pitts">2</a>.
 Mathematically, output <span class="MATH"><IMG
- STYLE="height: 2.12ex; vertical-align: -0.78ex; " SRC="img129.svg"
+ STYLE="height: 2.12ex; vertical-align: -0.82ex; " SRC="img129.svg"
  ALT="$z_{lj}$"></span> from unit <span class="MATH"><IMG
- STYLE="height: 2.44ex; vertical-align: -0.57ex; " SRC="img130.svg"
+ STYLE="height: 2.34ex; vertical-align: -0.58ex; " SRC="img130.svg"
  ALT="$j$"></span> in layer <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img128.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img128.svg"
  ALT="$l$"></span> is computed as
 <p></p>
 <div class="displaymath"><a id="eq-output"></a><!-- MATH
@@ -2386,34 +2386,34 @@ z_{li} = s(\sum_j w_{lij}z_{l-1j})
 <table class="equation" >
 <tr>
 <td  style="text-align:center;"><span class="MATH"><IMG
- STYLE="height: 6.17ex; vertical-align: -3.40ex; " SRC="img131.svg"
+ STYLE="height: 5.18ex; vertical-align: -2.93ex; " SRC="img131.svg"
  ALT="$\displaystyle z_{li} = s(\sum_j w_{lij}z_{l-1j})$"></span></td>
 <td  class="eqno" style="text-align:right">
 (<span class="arabic">1</span>)</td></tr>
 </table></div>
 <p></p>
 where the sum ranges over the units <span class="MATH"><IMG
- STYLE="height: 2.44ex; vertical-align: -0.57ex; " SRC="img130.svg"
+ STYLE="height: 2.34ex; vertical-align: -0.58ex; " SRC="img130.svg"
  ALT="$j$"></span> in layer <span class="MATH"><IMG
- STYLE="height: 2.26ex; vertical-align: -0.31ex; " SRC="img127.svg"
+ STYLE="height: 2.15ex; vertical-align: -0.30ex; " SRC="img127.svg"
  ALT="$l-1$"></span> that are connected
 to unit <span class="MATH"><IMG
- STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img34.svg"
+ STYLE="height: 1.91ex; vertical-align: -0.14ex; " SRC="img34.svg"
  ALT="$i$"></span> in layer <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img128.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img128.svg"
  ALT="$l$"></span>. <span class="MATH"><IMG
- STYLE="height: 2.12ex; vertical-align: -0.78ex; " SRC="img132.svg"
+ STYLE="height: 2.12ex; vertical-align: -0.82ex; " SRC="img132.svg"
  ALT="$w_{lij}$"></span> is the <span  class="textit">weight</span> of the connection
 from <span class="MATH"><IMG
- STYLE="height: 2.44ex; vertical-align: -0.57ex; " SRC="img130.svg"
+ STYLE="height: 2.34ex; vertical-align: -0.58ex; " SRC="img130.svg"
  ALT="$j$"></span> in layer <span class="MATH"><IMG
- STYLE="height: 2.26ex; vertical-align: -0.31ex; " SRC="img127.svg"
+ STYLE="height: 2.15ex; vertical-align: -0.30ex; " SRC="img127.svg"
  ALT="$l-1$"></span> to <span class="MATH"><IMG
- STYLE="height: 1.99ex; vertical-align: -0.12ex; " SRC="img34.svg"
+ STYLE="height: 1.91ex; vertical-align: -0.14ex; " SRC="img34.svg"
  ALT="$i$"></span> in layer <span class="MATH"><IMG
- STYLE="height: 2.07ex; vertical-align: -0.12ex; " SRC="img128.svg"
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="img128.svg"
  ALT="$l$"></span>. <span class="MATH"><IMG
- STYLE="height: 1.46ex; vertical-align: -0.12ex; " SRC="img24.svg"
+ STYLE="height: 1.45ex; vertical-align: -0.14ex; " SRC="img24.svg"
  ALT="$s$"></span> is commonly chosen as the
 <span  class="textit">sigmoid function</span>, defined by
 <p></p>
@@ -2425,23 +2425,23 @@ s(x) = \frac{1}{1 + e^{-x}}
 <table class="equation" >
 <tr>
 <td  style="text-align:center;"><span class="MATH"><IMG
- STYLE="height: 5.30ex; vertical-align: -1.90ex; " SRC="img133.svg"
+ STYLE="height: 5.12ex; vertical-align: -1.82ex; " SRC="img133.svg"
  ALT="$\displaystyle s(x) = \frac{1}{1 + e^{-x}}$"></span></td>
 <td  class="eqno" style="text-align:right">
 (<span class="arabic">2</span>)</td></tr>
 </table></div>
 <p></p>
 The sigmoid function provides a &ldquo;soft&rdquo; thresholding, see the sketch in
-Fig.&nbsp;<a href="#fig-sigmoid"><img  alt="[*]" src="crossref.png"></a>.
+Fig.&nbsp;<a href="#fig-sigmoid">4</a>.
 
-<div class="CENTER"><a id="fig-sigmoid"></a><a id="471"></a>
+<div class="CENTER"><a id="fig-sigmoid"></a><a id="472"></a>
 <table>
-<caption class="BOTTOM"><strong>Figure:</strong>
+<caption class="BOTTOM"><strong>Figure 4:</strong>
 The sigmoid function.</caption>
 <tr><td>
 <div class="CENTER">
 <IMG
- STYLE="height: 13.84ex; vertical-align: -0.12ex; " SRC="img134.svg"
+ STYLE="height: 20.00ex; vertical-align: -0.11ex; " SRC="img134.svg"
  ALT="\includegraphics[scale=0.8, clip]{sigmoid.pdf}">
   
 </div></td></tr>
@@ -2482,7 +2482,7 @@ w : Array int (Array (int,int) float)
 Note that <span  class="texttt">w[l]</span> might be a sparse matrix, with a sparse bound. We
 assume that the arrays <span  class="texttt">z</span> and <span  class="texttt">w</span> themselves have dense
 bounds <span  class="texttt">0..n-1</span> and <span  class="texttt">1..n-1</span>, respectively, where <span  class="texttt">n</span>
-is the number of layers. Fig.&nbsp;<a href="#fig-array"><img  alt="[*]" src="crossref.png"></a> shows an example with an input
+is the number of layers. Fig.&nbsp;<a href="#fig-array">5</a> shows an example with an input
 layer with three units, a hidden layer with five units, and an output
 layer with two units. We can note that the nested array representation
 easily can handle the fact that different layers can hold different numbers
@@ -2490,14 +2490,14 @@ of units in feed-forward networks.
 
 <p>
 
-<div class="CENTER"><a id="fig-array"></a><a id="504"></a>
+<div class="CENTER"><a id="fig-array"></a><a id="505"></a>
 <table>
-<caption class="BOTTOM"><strong>Figure:</strong>
+<caption class="BOTTOM"><strong>Figure 5:</strong>
 A nested array representation of layers in a feed-forward network.</caption>
 <tr><td>
 <div class="CENTER">
 <IMG
- STYLE="width: 35em" SRC="img135.svg"
+ STYLE="height: 38.71ex; vertical-align: -0.11ex; " SRC="img135.svg"
  ALT="\includegraphics[scale=0.7, clip]{arrays.pdf}">
   
 </div></td></tr>
@@ -2507,7 +2507,7 @@ A nested array representation of layers in a feed-forward network.</caption>
 <p>
 We now give HERO-ML code for the computation. We use the following
 declarations<a id="tex2html11"
-  href="#foot507"><sup><span class="arabic">6</span></sup></a>:
+  href="#foot508"><sup><span class="arabic">6</span></sup></a>:
 <pre>
 s(x) = 1/(1 + exp (-x)) // sigmoid function
 sum(a) = reduce(+,a)    // sum over abstract array
@@ -2564,40 +2564,39 @@ regular matrix) then all layers will be modeled to have the same number of
 units. There are of course ways around this, but the nested array approach
 still seems to provide a better fit.
 
-<p>
-
-<hr><h4>Footnotes</h4>
+<hr>
+<h4>Footnotes</h4>
 <dl>
-<dt><a id="foot29">... 0.126</a><A
+<dt><a id="foot30">... 0.126</a><A
  HREF="Spec.html#tex2html1"><sup><span class="arabic">1</span></sup></a></dt>
 <dd>This research was funded by the KK-foundation through the HERO project, under grant no. 20180039.
 
 </dd>
-<dt><a id="foot546">...
+<dt><a id="foot547">...
 TESLA</a><A
  HREF="Spec.html#tex2html2"><sup><span class="arabic">2</span></sup></a></dt>
 <dd><span  class="texttt">https://www.nvidia.com/en-us/data-center/tesla/</span>
 
 </dd>
-<dt><a id="foot547">...
+<dt><a id="foot548">...
 Ephiphany</a><A
  HREF="Spec.html#tex2html3"><sup><span class="arabic">3</span></sup></a></dt>
 <dd><span  class="texttt">https://www.adapteva.com/introduction/</span>
 
 </dd>
-<dt><a id="foot548">...
+<dt><a id="foot549">...
 ZYNQ</a><A
  HREF="Spec.html#tex2html4"><sup><span class="arabic">4</span></sup></a></dt>
 <dd><span  class="texttt">https://www.xilinx.com/products/silicon-devices/soc.html</span>
 
 </dd>
-<dt><a id="foot549">...
+<dt><a id="foot550">...
 servers</a><A
  HREF="Spec.html#tex2html5"><sup><span class="arabic">5</span></sup></a></dt>
 <dd><span  class="texttt">https://www.microsoft.com/en-us/research/project/project-catapult/</span>
 
 </dd>
-<dt><a id="foot507">...
+<dt><a id="foot508">...
 declarations</a><A
  HREF="Spec.html#tex2html11"><sup><span class="arabic">6</span></sup></a></dt>
 <dd>HERO-ML does not have function definitions, but we can
