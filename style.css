@@ -25,7 +25,7 @@ IMG.BOTTOM  { vertical-align:baseline; }
 CAPTION { caption-side:bottom; }
 
 DL.COMPACT > dt { float:left; padding-right: 1em; }
-BODY { width:95%; max-width:50em; margin:auto; }
+BODY { width:95%; max-width:50em; }
 
 /* implement both fixed-size and relative sizes */
 .XTINY		{ font-size : xx-small }
