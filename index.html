@@ -118,9 +118,9 @@ for very high level specifications of data parallel algorithms. Such
 executable specifications can serve as portable &ldquo;blueprints&rdquo; when
 developing accelerator code, and they can help finding flaws in the
 algorithms at an early stage of development. HERO-ML is inspired by
-data-parallel and array languages such as *lisp&nbsp;[#!starlisp-started!#],
-NESL&nbsp;[#!nesl-impl-94!#], ZPL&nbsp;[#!Chamberlain-etal-ZPL!#], and
-HPF&nbsp;[#!HPF-handbook!#]. These languages all implement a parallel model of
+data-parallel and array languages such as *lisp&nbsp;[<A HREF="#starlisp-started">7</a>],
+NESL&nbsp;[<A HREF="#nesl-impl-94">1</a>], ZPL&nbsp;[<A HREF="#Chamberlain-etal-ZPL">2</a>],
+and HPF&nbsp;[<A HREF="#HPF-handbook">5</a>]. These languages all implement a parallel model of
 computation where the parallelism resides in collective operations over data
 structures, such as arrays, rather than explicitly in threads or processes.
 This model of computation is conceptually much simpler than the control
@@ -145,7 +145,7 @@ HERO-ML is an imperative language extended with a data parallel array data
 type. The language is deliberately kept simple, since its main purpose is to
 demonstrate the principles of very high-level data parallel programming
 rather than providing a full-fledged production language. The sequential
-part is a standard WHILE language&nbsp;[#!ProgramAnalysis:Book!#], extended with
+part is a standard WHILE language&nbsp;[<A HREF="#ProgramAnalysis:Book">6</a>], extended with
 a type for so-called <span  class="textit">abstract arrays</span> (see Section&nbsp;<a href="#sec-AA">2.1</a>), a set
 of <span  class="textit">array expressions</span>, a statement to <span  class="textit">evaluate</span> such
   expressions, and bind the resulting array to a program variable, and a
@@ -169,7 +169,8 @@ Abstract Arrays, and Bounds
 
 <p>
 Abstract arrays are basically the same as the previously considered
-<span  class="textit">data fields</span>&nbsp;[#!Holmerin-Xjobb!#,#!DFH-HW2000!#]. They provide a
+<span  class="textit">data fields</span>&nbsp;[<A HREF="#Holmerin-Xjobb">3</a>,
+<A HREF="#DFH-HW2000">4</a>]. They provide a
 generalization of conventional arrays by observing that these really are
 partial functions from some domain of indices to a range of values. For
 conventional, dense arrays the domains are intervals. Abstract arrays
@@ -242,7 +243,7 @@ bounds for multi-dimensional sparse arrays.
 
 <p>
 The HERO-ML bounds form a <span  class="textit">complete
-  lattice</span>&nbsp;[#!ProgramAnalysis:Book!#], which means that they have certain
+  lattice</span>&nbsp;[<A HREF="#ProgramAnalysis:Book">6</a>], which means that they have certain
 mathematical properties. Indeed there is a strong relation to static program
 analysis, and the computation of bounds can be seen as a kind of run-time
 value analysis. Some two-dimensional bounds are illustrated in
@@ -255,7 +256,7 @@ Fig.&nbsp;<a href="#fig-bounds">1</a>.
 <caption class="BOTTOM"><strong>Figure 1:</strong>
 A dense product bound, a product of a dense and a sparse bound, a
   product of two sparse bounds, and a 2D sparse bound. (Adapted
-  from&nbsp;[#!DFH-HW2000!#].)</caption>
+  from&nbsp;[<A HREF="#DFH-HW2000">4</a>].)</caption>
 <tr><td>
 <div class="CENTER">
 <IMG
@@ -290,7 +291,7 @@ There are three major kinds of array expressions in HERO-ML:
     variation of <span class="MATH"><IMG
  STYLE="height: 2.43ex; vertical-align: -0.58ex; " SRC="img7.svg"
  ALT="$forall$"></span> expressions was also present in Data Field
-    Haskell. See&nbsp;[#!Holmerin-Xjobb!#] for details.)
+    Haskell. See&nbsp;[<A HREF="#Holmerin-Xjobb">3</a>] for details.)
 
 <p>
 </li>
@@ -2564,41 +2565,98 @@ regular matrix) then all layers will be modeled to have the same number of
 units. There are of course ways around this, but the nested array approach
 still seems to provide a better fit.
 
+<h2><a id="SECTION00080000000000000000">References</a>
+</h2><dl class="COMPACT"><dt><a id="nesl-impl-94">1</a>
+<dd>
+G.&nbsp;E. Blelloch, S.&nbsp;Chatterjee, J.&nbsp;C. Hardwick, J.&nbsp;Sipelstein, and M.&nbsp;Zagha.
+<br>Implementation of a portable nested data-parallel language.
+<br><em>J. Parallel Distrib. Comput.</em>, 21(1):4&ndash;14, Apr. 1994.
+
+<p>
+<dt><a id="Chamberlain-etal-ZPL">2</a>
+<dd>
+B.&nbsp;L. Chamberlain, S.-E. Choi, E.&nbsp;C. Lewis, C.&nbsp;Lin, L.&nbsp;Snyder, and W.&nbsp;D.
+  Weathersby.
+<br>The case for high level parallel programming in ZPL.
+<br><em>IEEE Computational Science and Engineering</em>, 5(3):76&ndash;86,
+  1998.
+
+<p>
+<dt><a id="Holmerin-Xjobb">3</a>
+<dd>
+J.&nbsp;Holmerin.
+<br>Implementing data fields in Haskell.
+<br>Technical Report TRITA-IT R 99:04, Dept. of Teleinformatics, KTH,
+  Stockholm, Nov. 1999.
+<br><span  class="texttt">h</span>ttp://www.es.mdh.se/publications/5438-.
+
+<p>
+<dt><a id="DFH-HW2000">4</a>
+<dd>
+J.&nbsp;Holmerin and B.&nbsp;Lisper.
+<br>Data Field Haskell.
+<br>In G.&nbsp;Hutton, editor, <em>Proc. Fourth Haskell Workshop</em>, pages
+  106&ndash;117, Montreal, Canada, Sept. 2000.
+
+<p>
+<dt><a id="HPF-handbook">5</a>
+<dd>
+C.&nbsp;H. Koelbel, D.&nbsp;B. Loveman, R.&nbsp;S. Schreiber, G.&nbsp;L. Steele, Jr., and M.&nbsp;E.
+  Zosel.
+<br><em>The High Performance Fortran Handbook</em>.
+<br>Scientific and Engineering Computation. MIT Press, Cambridge, MA,
+  1994.
+
+<p>
+<dt><a id="ProgramAnalysis:Book">6</a>
+<dd>
+F.&nbsp;Nielson, H.&nbsp;R. Nielson, and C.&nbsp;Hankin.
+<br><em>Principles of Program Analysis, 2<sup>nd</sup> edition</em>.
+<br>Springer, 2005.
+
+<p>
+<dt><a id="starlisp-started">7</a>
+<dd>
+Thinking Machines Corporation, Cambridge, MA.
+<br><em>Getting Started in *Lisp</em>, June 1991.
+
+</dl>
+
 <hr>
 <h4>Footnotes</h4>
 <dl>
 <dt><a id="foot30">... 0.126</a><A
- HREF="Spec.html#tex2html1"><sup><span class="arabic">1</span></sup></a></dt>
+ HREF="#tex2html1"><sup><span class="arabic">1</span></sup></a></dt>
 <dd>This research was funded by the KK-foundation through the HERO project, under grant no. 20180039.
 
 </dd>
 <dt><a id="foot547">...
 TESLA</a><A
- HREF="Spec.html#tex2html2"><sup><span class="arabic">2</span></sup></a></dt>
+ HREF="#tex2html2"><sup><span class="arabic">2</span></sup></a></dt>
 <dd><span  class="texttt">https://www.nvidia.com/en-us/data-center/tesla/</span>
 
 </dd>
 <dt><a id="foot548">...
 Ephiphany</a><A
- HREF="Spec.html#tex2html3"><sup><span class="arabic">3</span></sup></a></dt>
+ HREF="#tex2html3"><sup><span class="arabic">3</span></sup></a></dt>
 <dd><span  class="texttt">https://www.adapteva.com/introduction/</span>
 
 </dd>
 <dt><a id="foot549">...
 ZYNQ</a><A
- HREF="Spec.html#tex2html4"><sup><span class="arabic">4</span></sup></a></dt>
+ HREF="#tex2html4"><sup><span class="arabic">4</span></sup></a></dt>
 <dd><span  class="texttt">https://www.xilinx.com/products/silicon-devices/soc.html</span>
 
 </dd>
 <dt><a id="foot550">...
 servers</a><A
- HREF="Spec.html#tex2html5"><sup><span class="arabic">5</span></sup></a></dt>
+ HREF="#tex2html5"><sup><span class="arabic">5</span></sup></a></dt>
 <dd><span  class="texttt">https://www.microsoft.com/en-us/research/project/project-catapult/</span>
 
 </dd>
 <dt><a id="foot508">...
 declarations</a><A
- HREF="Spec.html#tex2html11"><sup><span class="arabic">6</span></sup></a></dt>
+ HREF="#tex2html11"><sup><span class="arabic">6</span></sup></a></dt>
 <dd>HERO-ML does not have function definitions, but we can
   see these declarations as macros.
 
