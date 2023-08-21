@@ -56,7 +56,7 @@ The project webpage is located here:
 <hr>
 
 <h1><a id="SECTION00020000000000000000">
-Introduction</a>
+1 Introduction</a>
 </h1> 
 
 <p>
@@ -75,22 +75,16 @@ resources can be provided at low cost.
 <p>
 Today we see a large proliferation of accelerator architectures:
 GPGPU's (like NVIDIA
-TESLA<a id="tex2html2"
-  href="#foot547"><sup><span class="arabic">2</span></sup></a>),
-many-cores (such as Adapteva
-Ephiphany<a id="tex2html3"
-  href="#foot548"><sup><span class="arabic">3</span></sup></a>),
-solutions involving FPGA (e.g., Xilinx
-ZYNQ<a id="tex2html4"
-  href="#foot549"><sup><span class="arabic">4</span></sup></a>),
+TESLA<a id="tex2html2" href="#foot547"><sup><span class="arabic">2</span></sup></a>),
+many-cores (such as Adapteva Epiphany<a id="tex2html3" href="#foot548"><sup><span class="arabic">3</span></sup></a>),
+solutions involving FPGA (e.g., Xilinx ZYNQ<a id="tex2html4" href="#foot549"><sup><span class="arabic">4</span></sup></a>),
 and even ASICs. Although these architectures are quite different, they
 have in common that they typically rely on massive data parallelism to
 obtain performance. Besides embedded systems, these kinds of
 accelerators are also increasingly being used in traditional HPC as
 well as cloud computing: an example of the latter is Microsoft's
 Catapult project that integrates FPGAs into
-servers<a id="tex2html5"
-  href="#foot550"><sup><span class="arabic">5</span></sup></a>.
+servers<a id="tex2html5" href="#foot550"><sup><span class="arabic">5</span></sup></a>.
 
 <p>
 Developing software for these heterogenenous systems provides a
@@ -137,7 +131,7 @@ accelerators.
 <p>
 
 <h1><a id="SECTION00030000000000000000">
-HERO-ML Overview</a>
+2 HERO-ML Overview</a>
 </h1> 
 
 <p>
@@ -163,8 +157,7 @@ will be added in future versions of HERO-ML.
 
 <h2><a id="SECTION00031000000000000000"></a>
 <a id="sec-AA"></a>
-<br>
-Abstract Arrays, and Bounds
+2.1 Abstract Arrays, and Bounds
 </h2>
 
 <p>
@@ -328,8 +321,7 @@ bounds. This has some consequences for collective operations such as
 
 <h2><a id="SECTION00032000000000000000"></a>
 <a id="sec-ypes"></a>
-<br>
-Types
+2.2 Types
 </h2>
 
 <p>
@@ -415,8 +407,7 @@ operator, as an argument.
 
 <h1><a id="SECTION00040000000000000000"></a>
 <a id="sec-spec"></a>
-<br>
-HERO-ML Syntax
+3 HERO-ML Syntax
 </h1>
 
 <p>
@@ -1576,8 +1567,7 @@ Section&nbsp;<a href="#sec-function">4</a>.
 
 <h2><a id="SECTION00041000000000000000"></a>
   <a id="sec-concrete"></a>
-<br>
-HERO-ML Concrete Syntax
+3.1 HERO-ML Concrete Syntax
 </h2>
 
 <p>
@@ -1720,8 +1710,7 @@ it possible to put multiple statements on the same line.
 
 <h1><a id="SECTION00050000000000000000"></a>
   <a id="sec-function"></a>
-<br>
-HERO-ML Functions
+4 HERO-ML Functions
 </h1>
 
 <p>
@@ -1738,7 +1727,7 @@ HERO-ML.
 <p>
 
 <h2><a id="SECTION00051000000000000000">
-Numerical Functions</a>
+4.1 Numerical Functions</a>
 </h2>
 
 <p>
@@ -1749,7 +1738,7 @@ yet, but will be very much standard including standard scientific functions.
 <p>
 
 <h2><a id="SECTION00052000000000000000">
-Boolean Functions, and Operators</a>
+4.2 Boolean Functions, and Operators</a>
 </h2>
 
 <p>
@@ -1780,7 +1769,7 @@ undefined.)
 <p>
 
 <h2><a id="SECTION00053000000000000000">
-Conditional Function</a>
+4.3 Conditional Function</a>
 </h2>
 
 <p>
@@ -1808,8 +1797,7 @@ where <span class="MATH"><IMG
 
 <h2><a id="SECTION00054000000000000000"></a>
 <a id="sec-test-undef"></a>
-<br>
-Test for Undefined Value
+4.4 Test for Undefined Value
 </h2>
 
 <p>
@@ -1840,7 +1828,7 @@ from the undefined value &ldquo;<span class="MATH"><IMG
 <p>
 
 <h2><a id="SECTION00055000000000000000">
-Functions on Abstract Arrays</a>
+4.5 Functions on Abstract Arrays</a>
 </h2>
 
 <p>
@@ -1944,7 +1932,7 @@ lexicographic order over <span class="MATH"><IMG
 <p>
 
 <h2><a id="SECTION00056000000000000000">
-Functions on Bounds</a>
+4.6 Functions on Bounds</a>
 </h2>
 
 <p>
@@ -2143,8 +2131,7 @@ semantics for functions such as <span class="MATH"><IMG
 
 <h1><a id="SECTION00060000000000000000"></a>
 <a id="sec-io"></a>
-<br>
-I/O
+5 I/O
 </h1>
 
 <p>
@@ -2249,7 +2236,7 @@ input/output parameters of the kernel.
 <p>
 
 <h1><a id="SECTION00070000000000000000">
-A Worked Example: Feed-Forward ANN</a>
+6 A Worked Example: Feed-Forward ANN</a>
 </h1> 
 
 <p>
@@ -2259,7 +2246,7 @@ network can be modeled in HERO-ML.
 <p>
 
 <h2><a id="SECTION00071000000000000000">
-Background</a>
+6.1 Background</a>
 </h2>
 
 <p>
@@ -2317,7 +2304,7 @@ McCulloch-Pitts neuron.</caption>
 <p>
 
 <h2><a id="SECTION00072000000000000000">
-Feed-Forward Networks</a>
+6.2 Feed-Forward Networks</a>
 </h2>
 
 <p>
@@ -2462,7 +2449,7 @@ here.
 <p>
 
 <h2><a id="SECTION00073000000000000000">
-Modeling of Feed-Forward Network Computing with Hero-ML</a>
+6.3 Modeling of Feed-Forward Network Computing with Hero-ML</a>
 </h2>
 
 <p>
@@ -2507,8 +2494,7 @@ A nested array representation of layers in a feed-forward network.</caption>
 
 <p>
 We now give HERO-ML code for the computation. We use the following
-declarations<a id="tex2html11"
-  href="#foot508"><sup><span class="arabic">6</span></sup></a>:
+declarations<a id="tex2html11" href="#foot508"><sup><span class="arabic">6</span></sup></a>:
 <pre>
 s(x) = 1/(1 + exp (-x)) // sigmoid function
 sum(a) = reduce(+,a)    // sum over abstract array
@@ -2625,38 +2611,32 @@ Thinking Machines Corporation, Cambridge, MA.
 <hr>
 <h4>Footnotes</h4>
 <dl>
-<dt><a id="foot30">... 0.126</a><A
- HREF="#tex2html1"><sup><span class="arabic">1</span></sup></a></dt>
+<dt><a id="foot30">... 0.126</a><A HREF="#tex2html1"><sup><span class="arabic">1</span></sup></a></dt>
 <dd>This research was funded by the KK-foundation through the HERO project, under grant no. 20180039.
 
 </dd>
 <dt><a id="foot547">...
-TESLA</a><A
- HREF="#tex2html2"><sup><span class="arabic">2</span></sup></a></dt>
+TESLA</a><A HREF="#tex2html2"><sup><span class="arabic">2</span></sup></a></dt>
 <dd><span  class="texttt">https://www.nvidia.com/en-us/data-center/tesla/</span>
 
 </dd>
 <dt><a id="foot548">...
-Ephiphany</a><A
- HREF="#tex2html3"><sup><span class="arabic">3</span></sup></a></dt>
+Epiphany</a><A HREF="#tex2html3"><sup><span class="arabic">3</span></sup></a></dt>
 <dd><span  class="texttt">https://www.adapteva.com/introduction/</span>
 
 </dd>
 <dt><a id="foot549">...
-ZYNQ</a><A
- HREF="#tex2html4"><sup><span class="arabic">4</span></sup></a></dt>
+ZYNQ</a><A HREF="#tex2html4"><sup><span class="arabic">4</span></sup></a></dt>
 <dd><span  class="texttt">https://www.xilinx.com/products/silicon-devices/soc.html</span>
 
 </dd>
 <dt><a id="foot550">...
-servers</a><A
- HREF="#tex2html5"><sup><span class="arabic">5</span></sup></a></dt>
+servers</a><A HREF="#tex2html5"><sup><span class="arabic">5</span></sup></a></dt>
 <dd><span  class="texttt">https://www.microsoft.com/en-us/research/project/project-catapult/</span>
 
 </dd>
 <dt><a id="foot508">...
-declarations</a><A
- HREF="#tex2html11"><sup><span class="arabic">6</span></sup></a></dt>
+declarations</a><A HREF="#tex2html11"><sup><span class="arabic">6</span></sup></a></dt>
 <dd>HERO-ML does not have function definitions, but we can
   see these declarations as macros.
 
