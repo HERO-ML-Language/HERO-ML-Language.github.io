@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html data-theme="light">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+
+<title>Code examples</title>
+
+<link rel="stylesheet" href="css/pico.classless.min.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+<header>
+<!-- BEGIN NAV HEADER -->
+<nav>
+	<span>&#x2191; <a href="index.html">Home</a></span><!--
+	-->&#x2001;<span>&#x2190; <a href="Syntax.html">6. Concrete syntax</a></span><!--
+	-->&#x2001;<span><a href="Implementation.html">8. Implementation</a> &#x2192;</span>
+</nav>
+<!-- END NAV HEADER -->
+</header>
+
+<hr>
+
+<main>
+
+<h2>7. Code examples</h2>
+
+
+<p>
+The source tree of the interpreter also contains a set of short
+example programs.  As a complement to the introduction given below,
+these programs can provide more concrete illustrative examples of how
+various common data-parallel computations can be implemented in the
+language:
+</p>
+
+<p><a href="https://github.com/HERO-ML-Language/HERO-ML/tree/main/example_programs">Example programs on GitHub</a></p>
+
+
+<h3 id="SECTION00070000000000000000">
+A Worked Example: Feed-Forward ANN
+</h3> 
+
+<p>
+We now show how the computation performed by a classical feed-forward
+network can be modeled in HERO-ML.
+
+<p>
+
+<h3 id="SECTION00071000000000000000">
+Background
+</h3>
+
+<p>
+An Artificial Neural Network (ANN) is a computational structure whose
+way of working is inspired by how the nervous system works in living
+beings. Such nervous systems typically have the following
+characteristics:
+
+<ul>
+<li>they are composed out of many <span  class="textit">small</span>, <span  class="textit">interconnected
+  units</span> (the <span  class="textit">neurons</span>),
+
+<p>
+</li>
+<li>the interconnection is typically <span  class="textit">sparse</span>, i.e., each neuron is
+  connected only to a few other neurons,
+
+<p>
+</li>
+<li>each neuron has an <span  class="textit">activity level</span>, which is a affected by the
+  activity levels of the neurons that it is connected to, and
+
+<p>
+</li>
+<li>the activity level of a neuron is a <span  class="textit">highly non-linear</span> function
+  of the activity levels of its connected neurons. In particular there are
+  <span  class="textit">thresholding effects</span> caused by the activity level being saturated.
+
+<p>
+</li>
+</ul>
+
+<p>
+ANN's are mimicking this. There are many variations. A classical example is
+the <span  class="textit">McCulloch-Pitts neuron</span>, where the activity level of a neuron is
+computed by thresholding a weighted sum of the activity levels of its
+neighbours. See Fig.&nbsp;<a href="#fig-pitts">2</a>.
+
+<p>
+
+<div class="CENTER" id="fig-pitts">
+<table>
+<caption class="BOTTOM"><strong>Figure 2:</strong>
+McCulloch-Pitts neuron.</caption>
+<tr><td>
+<div class="CENTER">
+<IMG
+ STYLE="height: 14.44ex; vertical-align: -0.11ex; " SRC="images/img125.svg"
+ ALT="\includegraphics[scale=0.6, clip]{pitts.pdf}">
+  
+</div></td></tr>
+</table>
+</div>
+
+<p>
+
+<p>
+
+<div class="CENTER" id="fig-layers">
+<table>
+<caption class="BOTTOM"><strong>Figure 3:</strong>
+Layers in a feed-forward network.</caption>
+<tr><td>
+<div class="CENTER">
+<IMG
+ STYLE="height: 31.64ex; vertical-align: -0.11ex; " SRC="images/img126.svg"
+ ALT="\includegraphics[scale=0.6, clip]{layers.pdf}">
+  
+</div></td></tr>
+</table>
+</div>
+
+<h3 id="SECTION00072000000000000000">
+Feed-Forward Networks
+</h3>
+
+<p>
+In a <em>feed-forward network</em> the units are arranged in a number of
+<span  class="textit">layers</span>, where each interconnection goes from some layer <span class="MATH"><IMG
+ STYLE="height: 2.15ex; vertical-align: -0.30ex; " SRC="images/img127.svg"
+ ALT="$l-1$"></span> to
+layer <span class="MATH"><IMG
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="images/img128.svg"
+ ALT="$l$"></span>. See Fig.&nbsp;<a href="#fig-layers">3</a>. There are three kinds of layers:
+
+<ul>
+<li>an <em>input</em> layer, which provides the input to the ANN,
+
+<p>
+</li>
+<li>a number of <em>hidden</em> layers, which contain units
+  interconnected between layers similarly to the McCulloch-Pitts neuron in
+  Fig.&nbsp;<a href="#fig-pitts">2</a>, and
+
+<p>
+</li>
+<li>an <em>output</em> layer, which provides the output (or response) from
+  the ANN given a certain input.
+
+<p>
+</li>
+</ul>
+The input is basically an array of numbers. It can, for instance, be a pixel
+matrix encoding a picture. The output is also an array of numbers that
+encodes the output. It can, for instance, represent a classification of some
+object in the picture.
+
+<p>
+Each unit in a hidden layer computes its output as a weighted, thresholded
+sum of the outputs of the connected units in the previous layers,
+similarly to the McCulloch-Pitts neuron in Fig.&nbsp;<a href="#fig-pitts">2</a>.
+Mathematically, output <span class="MATH"><IMG
+ STYLE="height: 2.12ex; vertical-align: -0.82ex; " SRC="images/img129.svg"
+ ALT="$z_{lj}$"></span> from unit <span class="MATH"><IMG
+ STYLE="height: 2.34ex; vertical-align: -0.58ex; " SRC="images/img130.svg"
+ ALT="$j$"></span> in layer <span class="MATH"><IMG
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="images/img128.svg"
+ ALT="$l$"></span> is computed as
+<p></p>
+<div class="displaymath"><!-- MATH
+ \begin{equation}
+z_{li} = s(\sum_j w_{lij}z_{l-1j})
+\end{equation}
+ -->
+<table class="equation" >
+<tr>
+<td  style="text-align:center;"><span class="MATH"><IMG
+ STYLE="height: 5.18ex; vertical-align: -2.93ex; " SRC="images/img131.svg"
+ ALT="$\displaystyle z_{li} = s(\sum_j w_{lij}z_{l-1j})$"></span></td>
+<td  class="eqno" style="text-align:right">
+(<span class="arabic">1</span>)</td></tr>
+</table></div>
+<p></p>
+where the sum ranges over the units <span class="MATH"><IMG
+ STYLE="height: 2.34ex; vertical-align: -0.58ex; " SRC="images/img130.svg"
+ ALT="$j$"></span> in layer <span class="MATH"><IMG
+ STYLE="height: 2.15ex; vertical-align: -0.30ex; " SRC="images/img127.svg"
+ ALT="$l-1$"></span> that are connected
+to unit <span class="MATH"><IMG
+ STYLE="height: 1.91ex; vertical-align: -0.14ex; " SRC="images/img34.svg"
+ ALT="$i$"></span> in layer <span class="MATH"><IMG
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="images/img128.svg"
+ ALT="$l$"></span>. <span class="MATH"><IMG
+ STYLE="height: 2.12ex; vertical-align: -0.82ex; " SRC="images/img132.svg"
+ ALT="$w_{lij}$"></span> is the <span  class="textit">weight</span> of the connection
+from <span class="MATH"><IMG
+ STYLE="height: 2.34ex; vertical-align: -0.58ex; " SRC="images/img130.svg"
+ ALT="$j$"></span> in layer <span class="MATH"><IMG
+ STYLE="height: 2.15ex; vertical-align: -0.30ex; " SRC="images/img127.svg"
+ ALT="$l-1$"></span> to <span class="MATH"><IMG
+ STYLE="height: 1.91ex; vertical-align: -0.14ex; " SRC="images/img34.svg"
+ ALT="$i$"></span> in layer <span class="MATH"><IMG
+ STYLE="height: 1.99ex; vertical-align: -0.14ex; " SRC="images/img128.svg"
+ ALT="$l$"></span>. <span class="MATH"><IMG
+ STYLE="height: 1.45ex; vertical-align: -0.14ex; " SRC="images/img24.svg"
+ ALT="$s$"></span> is commonly chosen as the
+<em>sigmoid function</em>, defined by
+<p></p>
+<div class="displaymath"><!-- MATH
+ \begin{equation}
+s(x) = \frac{1}{1 + e^{-x}}
+\end{equation}
+ -->
+<table class="equation" >
+<tr>
+<td  style="text-align:center;"><span class="MATH"><IMG
+ STYLE="height: 5.12ex; vertical-align: -1.82ex; " SRC="images/img133.svg"
+ ALT="$\displaystyle s(x) = \frac{1}{1 + e^{-x}}$"></span></td>
+<td  class="eqno" style="text-align:right">
+(<span class="arabic">2</span>)</td></tr>
+</table></div>
+<p></p>
+The sigmoid function provides a &ldquo;soft&rdquo; thresholding, see the sketch in
+Fig.&nbsp;<a href="#fig-sigmoid">4</a>.
+
+<div class="CENTER" id="fig-sigmoid">
+<table>
+<caption class="BOTTOM"><strong>Figure 4:</strong>
+The sigmoid function.</caption>
+<tr><td>
+<div class="CENTER">
+<IMG
+ STYLE="height: 20.00ex; vertical-align: -0.11ex; " SRC="images/img134.svg"
+ ALT="\includegraphics[scale=0.8, clip]{sigmoid.pdf}">
+  
+</div></td></tr>
+</table>
+</div>
+
+<p>
+The weights are very important. They provide the knowledge that is stored in
+the network. <span  class="textit">Training</span> the network means to set the weights in order
+to have a response from the network that is as close as possible to the
+desired output.  A feed-forward network with hidden layers is a kind of
+<span  class="textit">Deep Neural Network</span> (DNN), and training such a network is called
+<span  class="textit">deep learning</span>.  There are systematic methods, such as
+<span  class="textit">back-propagation</span>, to do this, but we will not treat this further
+here.
+
+<p>
+
+<h3 id="SECTION00073000000000000000">
+Modeling of Feed-Forward Network Computing with Hero-ML
+</h3>
+
+<p>
+We will now show how to model one particular way of computing the output
+from a trained feed-forward network, given some input. We will use nested
+arrays, where the nesting reflects the structuring of the network into
+layers. More specifically <span  class="texttt">z</span> will be an array of arrays, where
+<span  class="texttt">z[l]</span> holds the output values of the units in layer
+<span  class="texttt">l</span>. The weights will be stored in an array of matrices <span  class="texttt">w</span>,
+where <span  class="texttt">w[l]</span> is a matrix where each element <span  class="texttt">w[l][i,j]</span> holds
+the weight for the connection from unit <span  class="texttt">j</span> in layer <span  class="texttt">l-1</span>
+to unit <span  class="texttt">i</span> in layer <span  class="texttt">l</span>. The types of <span  class="texttt">z</span> and
+<span  class="texttt">w</span> are as follows:
+<pre>
+z : Array int (Array int float)
+w : Array int (Array (int,int) float)
+</pre>
+Note that <span  class="texttt">w[l]</span> might be a sparse matrix, with a sparse bound. We
+assume that the arrays <span  class="texttt">z</span> and <span  class="texttt">w</span> themselves have dense
+bounds <span  class="texttt">0..n-1</span> and <span  class="texttt">1..n-1</span>, respectively, where <span  class="texttt">n</span>
+is the number of layers. Fig.&nbsp;<a href="#fig-array">5</a> shows an example with an input
+layer with three units, a hidden layer with five units, and an output
+layer with two units. We can note that the nested array representation
+easily can handle the fact that different layers can hold different numbers
+of units in feed-forward networks.
+
+<p>
+
+<div class="CENTER" id="fig-array">
+<table>
+<caption class="BOTTOM"><strong>Figure 5:</strong>
+A nested array representation of layers in a feed-forward network.</caption>
+<tr><td>
+<div class="CENTER">
+<IMG
+ STYLE="height: 38.71ex; vertical-align: -0.11ex; " SRC="images/img135.svg"
+ ALT="\includegraphics[scale=0.7, clip]{arrays.pdf}">
+  
+</div></td></tr>
+</table>
+</div>
+
+<p>
+We now give HERO-ML code for the computation. We use the following
+declarations:
+<pre>
+s(x) = 1/(1 + exp (-x)) // sigmoid function
+sum(a) = reduce(+,a)    // sum over abstract array
+</pre>
+(The current version of HERO-ML does not have functions, but we can see these declarations as macros.) 
+We assume that the input to the computation is stored in the array
+<code>input</code>. First, the input layer <code>z[0]</code> is assigned this
+array. Then the code loops over the other layers, computing <code>z[l]</code>
+from a matrix-array multiplication of <code>z[l-1]</code> and <code>w[l]</code>
+followed by a thresholding of the elements in the resulting array:
+<pre>
+z[0] = input;
+l = 1;
+  while l &lt; n do
+    z[l] = forall i -&gt; s(sum(forall j -&gt; (w[l][i,j] * z[l-1][j])));
+    l = l + 1
+</pre>
+
+<p>
+This version creates a new abstract array for each array assignment. As an
+alternative we can instead use a <code>foreach</code> statement, which performs
+an in-place update:
+<pre>
+foreach i in bound(z[0]) do z[0][i] = input[i];
+l = 1;
+  while l &lt; n do
+    foreach i in bound(z[l]) do
+      z[l][i] = s(sum(forall j -&gt; (w[l][i,j] * z[l-1][j])));
+    l = l + 1
+</pre>
+What if we instead choose to use flat (non-nested) arrays? <code>z</code> then
+turns ito a matrix, and <code>w</code> becomes a three-dimensional tensor. Their
+types will now be as follows:
+<pre>
+z : Array (int,int) float
+w : Array (int,int,int) float
+</pre>
+For each iteration <code>l</code>, row <code>l</code> in <code>z</code> will now be
+updated.  This is accomplished by a <code>foreach</code> statement where the
+elements to be updated are selected from this row. We obtain the following
+code:
+<pre>
+foreach i in bound(forall j -&gt; z[0,j]) do z[0,i] = input[i];
+l = 1;
+  while l &lt; n do
+    foreach i in bound(forall j -&gt; z[l,j]) do
+      z[l,i] = s(sum(forall j -&gt; (w[l,i,j] * z[l-1,j])));
+    l = l + 1
+</pre>
+Here the <code>l</code>'th row is extracted using a <code">forall</code> expression.
+
+<p>
+A disadvantage with flat arrays is that if <code>z</code> has a dense bound (a
+regular matrix) then all layers will be modeled to have the same number of
+units. There are of course ways around this, but the nested array approach
+still seems to provide a better fit.
+
+</main>
+
+<hr>
+
+<!-- BEGIN FOOTER -->
+<footer>
+<address>
+<i>
+<a href="mailto:hero-ml@list.mdu.se">HERO-ML@list.mdu.se</a><br>
+Latest change: July 26, 2025<br>
+</i>
+</address>
+</footer>
+<!-- END FOOTER -->
+
+</body></html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html data-theme="light">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+
+<title>Implementation</title>
+
+<link rel="stylesheet" href="css/pico.classless.min.css">
+<link rel="stylesheet" href="css/styles.css">
+
+</head>
+
+<body>
+
+<header>
+<!-- BEGIN NAV HEADER -->
+<nav>
+	<span>&#x2191; <a href="index.html">Home</a></span><!--
+	-->&#x2001;<span>&#x2190; <a href="Examples.html">7. Code examples</a></span><!--
+	-->&#x2001;<span><a href="Downloading.html">9. Downloading HERO-ML</a> &#x2192;</span>
+</nav>
+<!-- END NAV HEADER -->
+</header>
+
+<hr>
+
+<main>
+<h2>8. Implementation</h2>
+
+<p>
+A proof-of-concept HERO-ML interpreter has been implemented. The interpreter
+is a command line application written entirely in F#, and so should be
+supported on all major platforms without modifications to the source
+code. It can be freely downloaded from
+the <a href="https://hero-ml-language.github.io/">HERO-ML web site</a>.
+</p>
+
+<p>
+The overall design of the interpreter is straightforward. It first parses a
+HERO-ML source file to generate an abstract syntax tree (AST). Then the AST
+undergoes a validation step where any remaining static correctness checks
+that could not practically be performed during parsing (such as type
+checking) are carried out. Finally, if the program passed the previous two
+steps, it is executed from start to finish using the AST as the program
+format.
+</p>
+
+<p>
+Throughout the program execution, a representation of the current HERO-ML
+program state is maintained in memory as a dictionary data structure
+(implemented using the type from the standard library of F#), which keeps an
+entry for each program variable holding its current run-time
+value. Variables that are local to, e.g., <code>forall</code> expressions
+are only added to the dictionary temporarily while the expression in which
+they are bound is being evaluated.
+</p>
+
+<p>
+The actual program execution is an iterative process, analogous to applying
+the semantic rules described in
+the <a href="https://www.es.mdu.se/publications/6649-HERO_ML_Specification">HERO-ML
+Language Specification</a>, to the AST nodes and the program state in a
+repeated fashion, generating updated program states until the program
+terminates.
+</p>
+
+<p>
+HERO-ML provides a simple <code>out</code> statement for writing values.
+Such a statement, when executed, will print a textual representation of the
+specified output value to the console.  To represent the run-time values of
+variables, as well as any intermediate results generated during expression
+evaluations, a custom type is used, which is an F# discriminated union with
+one case for each HERO-ML type.
+</p>
+
+<p>
+The scalar types of HERO-ML are represented using the corresponding
+primitive data types of F#. Bounds and arrays are represented using custom
+aggregate types, described in more detail below. In addition the union
+includes cases for certain symbolic values, such as the special value
+"<code>?</code>", as well as an "<code>ERROR</code>" value which represents
+a program error generated during expression evaluation. In most cases,
+occurrences of <code>ERROR</code> immediately cause execution to terminate
+with an error message printed to the console.
+</p>
+
+<p>
+The run-time representation used for bounds is fairly simple, using an F#
+discriminated union for the different types of bounds. Some bounds require
+additional parameters for their definition: A dense bound <code>l..u</code>
+is given by a pair of integers, and a product
+bound <code>(b<sub>1</sub>...b<sub>m</sub>)</code> stores the factors
+<code>b<sub>1</sub>...b<sub>m</sub></code>, in a list. For a sparse
+multi-dimensional bound, its set uses the datatype from the F# standard
+library. The individual indices of are represented using a custom type ,
+which is simply a type alias for an integer list. Predicate bounds are
+stored as an F# function of type <code>Index -> bool</code> which, when
+applied to an index value, evaluates the predicate with the local index
+variable(s) of the predicate temporarily bound to the given index.
+</p>
+
+<p>
+To represent abstract arrays, two pieces of data are combined: a bound, and a mechanism that looks up the array
+element corresponding to some given index. Depending on
+the kind of array expression this mechanism is either a function, of type
+<code>Index -> Value</code>, or a table lookup.  Accessing a single array
+element <code>a[i]</code> now proceeds as follows. First the index is
+checked for membership in the bound. If this check fails, then the operation
+immediately returns the symbolic <code>ERROR</code> value to signal an
+access out of bounds. Otherwise, the lookup mechanism of the array is used
+to retrieve the element.
+</p>
+
+<p>
+Accessing a whole array is a bit different. First a check is done whether
+the bound is finite: if not, <code>ERROR</code> is returned.  If the test
+succeeds then the array is tabulated by evaluating and storing the
+elements <code>a[i]</code> for all <code>i</code> in <code>bound(a)</code>.
+The data structure used for storing a tabulated array depends on the kind of
+bound. In all cases the elements are stored in a one-dimensional array. For
+dense arrays there is a 1-1 mapping between the HERO-ML array indices and
+the low-level indices in the array holding the elements: accessing an
+element will take &Theta;(<i>n</i>) time, where <i>n</i> is the dimension of
+the HERO-ML array. For sparse bounds the one-dimensional array is augmented
+with a "cluster dictionary", which is space-efficient and still allows
+access in &Theta;(<i>n</i>) + &Omicron;(<i>log m</i>) time where <i>m</i> is
+the number of array elements. For details, see
+the <a href="https://www.es.mdu.se/publications/6649-HERO_ML_Specification">HERO-ML
+Language Specification</a>.
+</p>
+
+</main>
+
+<hr>
+
+<!-- BEGIN FOOTER -->
+<footer>
+<address>
+<i>
+<a href="mailto:hero-ml@list.mdu.se">HERO-ML@list.mdu.se</a><br>
+Latest change: June 9, 2025<br>
+</i>
+</address>
+</footer>
+<!-- END FOOTER -->
+
+</body></html>

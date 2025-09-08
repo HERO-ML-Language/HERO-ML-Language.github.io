@@ -1,0 +1,165 @@
+ <!DOCTYPE html>
+<html data-theme="light">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+
+<title>Concrete syntax</title>
+
+<link rel="stylesheet" href="css/pico.classless.min.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+<header>
+<!-- BEGIN NAV HEADER -->
+<nav>
+	<span>&#x2191; <a href="index.html">Home</a></span><!--
+	-->&#x2001;<span>&#x2190; <a href="Expressing.html">5.  Expressing common data parallel operations in HERO-ML</a></span><!--
+	-->&#x2001;<span><a href="Examples.html">7. Code examples</a> &#x2192;</span>
+</nav>
+<!-- END NAV HEADER -->
+</header>
+
+<hr>
+
+<main>
+
+<h2>6. Concrete syntax</h2>
+
+
+<p>
+We now address the most relevant aspects of the concrete syntax of HERO-ML
+that either differ from or are left unspecified in the abstract syntax used
+throughout the rest of this document.  To begin with, the part of HERO-ML
+dealing with scalar computations mostly adheres to the
+&ldquo;standard&rdquo; syntax rules found in most conventional languages
+such as C.  Specifically this means that infix notation is used for the
+arithmetic, relational, and logical
+operators <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, 
+<code>%</code>
+(integer
+remainder), <code>&lt;</code>, <code>&lt;=</code>
+and so on, and that these follow the usual operator precedence and
+associativity rules.  Also, integer, floating-point, and boolean literals as
+well as variable names all follow standard formats, with the exception that
+variable names are allowed to include a trailing sequence of single quotes,
+as in, e.g., <code>x'</code>
+and <code>y''</code>, which is somewhat less conventional.
+
+<p>
+The language only defines two specific infix operators for bounds and
+arrays, and these are the &ldquo;<code>|</code>&rdquo;
+operator used to perform &ldquo;array slicing&rdquo;, and the double-dot
+operator &ldquo;<code>..</code>&rdquo; used to specify dense
+bounds.  Insofar as these operators need precedences and associativities to
+resolve syntactical ambiguities, these have mostly been chosen in the
+natural way given the type rules of the language.  For example, for an
+ambiguous expression like <code>arr|bnd<sub>1</sub>|bnd<sub>2</sub></code>, only the interpretation <code>(arr|bnd<sub>1</sub>)|bnd<sub>2</sub></code>
+ makes sense, since the alternative interpretation
+<code>arr|(bnd<sub>1</sub>|bnd<sub>2</sub>)</code>
+ would give rise to a type error in the second slicing
+ operation.  However, one true source of ambiguity is when
+ a <ode>forall</code> expression is immediately
+ followed by an array slicing operation.  For example, the
+expression
+<code>forall i -> arr[i] | bnd</code>
+ could be interpreted either as
+<code>(forall i -> arr[i]) | bnd</code>
+or as
+<code>forall i -> (arr[i] | bnd)</code>,
+ where the second variant can make sense
+ if <code>arr</code>
+  is an array of arrays.  This
+ ambiguity has been resolved in favor of the first variant, as using
+the <code>|</code> operator to slice the result of a
+<ode>forall</code> expression should be the more
+ common use case.  In the case of nested forall expressions followed by a
+slicing operation,
+<code>forall i -> forall j -> ... | bnd</code>,
+an ambiguity arises as to which <code>forall</code> expression the slicing should
+ be attached to.  Analogously to how the classical &ldquo;dangling
+ else&rdquo; problem is commonly resolved, HERO-ML lets this &ldquo;dangling
+ slice&rdquo; be attached to the rightmost <code>forall</code> expression.
+
+<p>
+Similarly to some languages such as Python and F#, HERO-ML is sensitive to
+how the code is indented to allow for a more lightweight syntax, where
+statements and variable declarations can be terminated with simple line
+breaks as opposed to explicit characters like semicolons, and the block
+structure of the program can be expressed by changes in indentation instead
+of parentheses or special keywords.  At the beginning of each new
+block&mdash;that is, after the &ldquo;<code>do</code>&rdquo; keyword in a <code>while</code> statement
+or after the &ldquo;<code>then</code>&rdquo; and &ldquo;<code>else</code>&rdquo; keywords in an
+if-else statement&mdash;the first statement to appear sets a base
+indentation for the rest of the block.  This first statement, which is
+allowed to be on the same line as the preceding keyword, must be at least
+one character position to the right of the indentation of the surrounding
+block, otherwise the block is considered empty.  Then the indentation of
+each subsequent line of code (ignoring blank lines) is compared against the
+block's base indentation, and the following version of the &ldquo;offside
+rule&rdquo; is applied:
+
+<ul>
+<li>If a line starts at a column number that coincides with the current
+indentation, then it is considered the beginning of a new statement inside
+the current code block.  This is as if an invisible semicolon character had
+appeared to mark the end of the statement on the previous line.  It is a
+syntax error, of course, if the statement on the previous line was not
+syntactically complete.
+
+<p>
+</li>
+<li>If the new line starts strictly to the right of the indentation, then it
+is instead counted as a continuation of the previous line, as if no line
+break had appeared at all.  This way long statements can be split over
+multiple lines by having the continuation lines be indented relative to the
+first line.
+
+<p>
+</li>
+<li>If a line starts strictly to the left of the current indentation, then
+this marks the termination of the current code block (and of the previous
+statement).  The same rules are then applied again to the same line but in
+the surrounding block and relative to that block's base indentation.  Note
+that this can lead to the closing of multiple nested blocks at the same
+time.
+</li>
+</ul>
+
+<p>
+Mainly the same principles also apply to the global scope of the program,
+where the first non-blank line in the program sets the indentation of the
+global scope.  However, an exception to the last rule above applies if the
+base indentation is non-zero, as there is no surrounding block to exit to in
+this case.  Then the base indentation is instead simply adjusted to be the
+same as that of the &ldquo;offside&rdquo; line from that point on.
+
+<p>
+An exception is also made for expressions enclosed in parentheses (including
+square brackets and curly braces).  As there are no statements or
+declarations inside of the parentheses to delimit, the indentation rules are
+simply suspended there, up to and including the closing parenthesis, meaning
+that all indentation and line breaks are ignored altogether.  The main
+motivation for this is to allow a more liberal use of indentation and line
+breaking when formatting explicit matrix expressions in a program.  Finally,
+the syntax allows for semicolons as an alternative way to delimit
+statements, which makes it possible to put multiple statements on the same
+line.
+
+</main>
+
+<hr>
+
+<!-- BEGIN FOOTER -->
+<footer>
+<address>
+<i>
+<a href="mailto:hero-ml@list.mdu.se">HERO-ML@list.mdu.se</a><br>
+Latest change: July 23, 2025<br>
+</i>
+</address>
+</footer>
+<!-- END FOOTER -->
+
+</body></html>

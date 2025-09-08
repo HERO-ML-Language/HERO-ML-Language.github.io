@@ -1,0 +1,13 @@
+body {
+	max-width: 80ch;
+	margin-left: 2ch;
+}
+
+nav > span {
+	white-space: nowrap;
+}
+
+dl.references {
+	display: grid;
+	grid-template-columns: max-content auto;
+}

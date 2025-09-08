@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html data-theme="light">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+
+<title>Arrays in HERO-ML</title>
+
+<link rel="stylesheet" href="css/pico.classless.min.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+<header>
+<!-- BEGIN NAV HEADER -->
+<nav>
+	<span>&#x2191; <a href="index.html">Home</a></span><!--
+	-->&#x2001;<span>&#x2190; <a href="Sequential.html">3. Sequential HERO-ML</a></span><!--
+	-->&#x2001;<span><a href="Expressing.html">5.  Expressing some common data parallel ops. in HERO-ML</a> &#x2192;</span>
+</nav>
+<!-- END NAV HEADER -->
+</header>
+
+<hr>
+
+<main>
+<h2>4. Arrays in HERO-ML</h2>
+
+<p>
+As mentioned, the parallelism in HERO-ML is inherent in data parallel
+operations over arrays. These operations work on the array elements, which
+typically can be done with a large degree of parallelism. This gives freedom
+to a compiler to schedule the computation of the array elements in a way
+that utilizes the hardware well. Also, arguably programs that use these
+operations tend to be easier to read and understand -- the situation
+resembles functional programs where higher order list functions
+like <code>map</code>, <code>fold</code>, and <code>filter</code> support a
+programming style where these primitives operate directly on whole lists
+rather than explicitly recursing through them. Data parallel array functions
+can also be designed to be free from race conditions, unlike thread-based
+programming models such as OpenMP.
+</p>
+
+<p>
+The arrays in HERO-ML are called <i>abstract arrays</i>. Their design is
+based on the view that arrays semantically are functions <i>I &rarr; A</i>,
+where <i>I</i> is an <i>index set</i> and <i>A</i> is a set of values of
+some type.
+</p>
+
+<p>
+
+<figure>
+  <img src="array1.png" alt="Abstract array" />
+</figure>
+</p>
+
+<p>
+  Index sets for abstract arrays are represented by <i>bounds</i> (see
+  below). Bounds for arrays in conventional languages are often based on
+  intervals: for instance, the bound for an array in C with <i>n</i> elements is
+  the interval <i>[0,n-1]</i>. The abstract arrays in HERO-ML can have a variety of
+  bounds that also includes sparse, multi-dimensional, and even infinite
+  bounds. Indices can be integers (for one-dimensional bounds), or tuples of
+  integers (for multidimensional bounds).
+</p>
+
+<p>
+Abstract arrays are evaluated in the following way:
+<ol>
+  <li>Evaluate the bound, and</li>
+  <li>If the bound is finite then evaluate each array element within the
+  bound, creating a table of evaluated elements, otherwise abort.</li>
+</ol>
+</p>
+
+<p>
+  It can be hard to compute exact index sets for HERO-ML's abstract arrays:
+thus, bounds for arrays are designed to provide <i>safe approximations</i>
+of the corresponding index sets such that the set of indices defined by a
+bound for the array <code>a</code> always is a superset of the exact index set
+for <code>a</code>. (Basically the computation of bounds is a kind of value
+analysis by abstract interpretation [<A HREF="References.html#ProgramAnalysis:Book">6</a>].)
+</p>
+
+<figure>
+  <img src="array2.png" alt="Abstract array with bound" />
+</figure>
+</p>
+
+<p>
+A consequence of this is that for some indices <code>i</code> within the
+bound of an array <code>a</code>, <code>a[i]</code> might be undefined. For
+such indices holds that <code>a[i] = ?</code>, where "<code>?</code>" is
+an <i>explicitly undefined value</i>. "<code>?</code>" is not directly
+accessible in HERO-ML, but the predicate <code>isDef</code> tests whether
+its argument equals <code>?</code> or not.
+</p>
+
+<figure>
+  <img src="array3.png" alt="Abstract array with undefined value" />
+</figure>
+</p>
+
+<p>
+An array with index type <code>t</code> and value type <code>t'</code> has
+the <i>array type</i> <code>Array t t'</code>. <code>t'</code> can itself be
+an array type: thus, HERO-ML arrays can be nested. Bounds have types of the
+form <code>Bounds t</code>, where <code>t</code> is an index type.
+</p>
+
+<h3 id = "Bounds">Array bounds</h3>
+
+<p>HERO-ML provides the following kinds of bounds:
+</p>
+
+<ul>
+
+  <li><b>dense bounds</b>, representing intervals,</li>
+
+  <li><b>sparse bounds</b>, representing general finite sets,</li>
+
+  <li><b>predicate bounds</b>, representing (possibly infinite) sets defined by a
+  predicate,</li>
+
+  <li><b>empty</b> and <b>all,</b> representing the empty and universal set,
+  respectively, and</li>
+
+  <li><b>product bounds</b> representing cartesian products.</li>
+
+</ul>
+
+<p>
+  Bounds of the different kinds above are created by the following constructs:
+</p>
+
+<ul>
+
+  <li><code>empty</code>, <code>all</code>:
+    corresponds to the empty and universal set, respectively.
+  </li>
+
+  <li><code>i..j</code>: an <i>interval bound</i> representing the
+    interval [<i>i,j</i>].<br>
+    Example: <code>1..10</code>, denotes the interval from 1 to 10.
+</li>
+
+  <li><code>{i<sub>1</sub>,...,i<sub>n</sub>}</code>: a <i>sparse bound</i>
+    representing the set of indices
+    {<i>i<sub>1</sub></i>,...,<i>i<sub>n</sub></i>}.<br>
+    Example: <code>{(0,1),(3,2),(0,-1),(2,2)}</code>, a sparse
+    two-dimensional bound with four elements.
+</li>
+
+  <li><code>{i : p}</code>: a <i>predicate bound</i> denoting the set of
+  all indices <i>i</i> such that <i>p</i>(<i>i</i>) is true for the
+  predicate <i>p</i>.<br>
+    Example: <code>{(i,j) : i+j > 0}</code>, a two-dimensional predicate
+  bound representing the set of all (<i>i</i>,<i>j</i>)	such that <i>i</i>
+  + <i>j</i> > 0.
+</li>
+
+  <li><code>(b<sub>1</sub>,...,b<sub>n</sub>)</code>: a <i>cartesian product bound</i> formed
+    from the bounds <i>b<sub>1</sub></i>,...,<i>b<sub>n</sub></i>.<br>
+Example: <code>(1..10,1..25)</code>, a 2-D bound for a 10 x 25 dense matrix
+    formed from two 1-D bounds.
+  </li>
+
+</ul>
+
+<p>
+The figure below shows a dense product bound, a product of a dense and a
+sparse bound, a product of two sparse bounds, and a 2D sparse bound.
+</p>
+
+<figure>
+  <img src="2d-bounds.gif" alt="Some 2D bounds" />
+</figure>
+
+<p>
+<b>Functions on bounds</b>
+</p>
+
+<p>
+HERO-ML has many functions on bounds. Many of these are used to implement
+the implicit derivation of bounds that takes place when array-valued
+expressions, such as forall-expressions (see below), are evaluated. They are exposed at
+the user level primarily to allow the manual tailoring of bounds in cases
+when the implicit bounds derivation does not yield a satisfactory
+result. The functions can also be seen as providing an <i>interface</i> for
+bounds: any set representation that implements these functions (such that
+they have certain prescribed properties) can be used as bounds.
+</p>
+
+<p>
+
+<ul>
+
+  <li><code>member : (t, Bounds t) -> bool:</code>
+  <code>member(i, bnd)</code> returns <code>true</code> when <code>i</code>
+is a member of the set defined by the bound <code>bnd</code>.
+</li>
+
+  <li><code>join, meet : (Bounds t, Bounds t) -> Bounds t</code>:
+Lattice-theoretical <i>join</i> and <i>meet</i>, respectively, in the
+lattice of bounds over <code>Bounds t</code> (approximating set union and
+    -intersection).<br>
+    Example (dense 1-D bounds): <code>meet(1..10,5..30) = 5..10</code>,
+    <code> join(1..10,20..30) = 1..30</code>.
+  </li>
+
+<li><code>isDense, isSparse, isPredicate, isProduct : (Bounds t) ->
+    bool</code>:
+they all test whether their arguments are of the corresponding type.
+</li>
+
+  <li><code>finite : (Bounds t) -> bool</code>:
+    <code>finite(bnd)</code> is true iff the bound <code>bnd</code> is classified as
+finite (i.e., if <code>bnd</code> is dense, sparse, empty, or a product of finite
+bounds).
+</li>
+
+  <li><code>size : (Bounds t) -> int</code>: <code>size(bnd)</code> returns the
+number of elements in the finite bound <code>bnd</code>. It is undefined for
+infinite bounds.
+  </li>
+
+<li><code>enum : (Bounds t) -> Array int</code>: <code>enum(bnd)</code> provides
+an enumeration of the elements in the finite bound <code>bnd</code>, in
+lexicographic order, in the form of an array with the interval bound
+<code>0..size(bnd) - 1</code> containing the elements of <code>bnd</code> in this
+order. Undefined for infinite bounds.<br>
+Example (sparse 1-D bound): <code>enum({3,1,7}) = [0..2 : 1,3,7]</code>.<br>
+Note: <code>enum</code> is currently not visible in HERO-ML. It is however visible
+(and used) in intermediate layers.
+</li>
+
+</ul>
+
+</p>
+
+<h3 id = "Expressions">Array expressions</h3>
+
+<p>
+HERO-ML provides three ways to specify arrays: as <i>array
+    comprehensions</i>, with explicit bounds, as <i>forall-expressions</i>,
+    with implicit bounds, and as <i>explicit arrays</i> where the array elements
+    are explicitly listed.
+</p>
+
+<p>
+  <b>Array comprehensions</b> have the format <code>[e(i) : i in bnd]</code>,
+  where <code>i</code> is an index variable ranging over the
+  bound <code>bnd</code> and <code>e(i)</code> is an expression
+  in <code>i</code>.<br><br>
+  Example: <code>[2*i : i in 1..10]</code>, an array
+  with bound <code>1..10</code>, and elements <code>2*i</code>.
+</p>
+
+<p>
+<b>Forall-expressions</b> have the format <code>forall i -> e(i)</code>,
+similar to lambda-abstraction in the lambda calculus. The bound of a
+forall-expression is not given explicitly, it is computed from the syntax of
+the expression according to a number of rules. For details, see
+the <a href="https://www.es.mdu.se/publications/6649-HERO_ML_Specification">HERO-ML Language Specification</a>.<br><br>
+
+Example: <code>forall i -> a[i] + b[i]</code>, elementwise addition of the
+arrays <code>a</code> and <code>b</code>, computing the bound from those of <code>a</code>
+and <code>b</code>.
+</p>
+
+<p>
+<b>Explicit arrays</b> come in a number of formats, depending on the kind of
+bounds.  An explicit array with a dense, possibly multidimensional bound is
+specified as <code>[bnd : list(n)]</code> where <code>bnd</code> specifies
+its bound, and <code>list(n)</code> is a possibly nested,
+semicolon-separated list of lists where the lowest level specifies the array
+elements in comma-separated lists. Bounds can be omitted, and then defaults
+to dense bounds with lower limit <code>0</code>.<br><br>
+
+Example 1: <code>[0..2 : 1,3,2]</code> is a dense one-dimensional array with
+bound <code>0..2</code>, and three elements <code>1,3,2</code>.  Elements
+are explicitly given, hence the name.<br><br>
+
+Example 2: <code>[1,3,2]</code> is the same array as above, since the
+omitted bound defaults to <code>0..2</code>.<br><br>
+
+Example 3: <code>[(1..2,1..3) : 1,2,3; 4,5,6;]</code> is a 2D-array (matrix)
+with rows <code>1,2,3</code>, and <code>4,5,6</code>. (The last semi-colon
+can be dropped.)<br><br>
+
+Example 4: <code>[1,2,3; 4,5,6;]</code>: a 2D-array like in Example 3, but
+with a default (dense product) bound <code>(0..1,0..2)</code>.<br><br>
+
+Example 5: <code>[(,,98..100) : 1,2,3; 4,5,6;; 7,8,9; 10,11,12;; 13,14,15;
+16,17,18;;]</code> is a dense 3D-array with
+bounds <code>(0..2,0..1,98..100)</code>. (The two first are default bounds.)
+If we name the array "<code>A</code>", then
+<code>A[1,0,99] = 8.</code><br><br>
+
+Sparse explicit arrays are specified as a finite set of index/value-pairs
+<code>[i<sub>1</sub>:e<sub>1</sub>,...,i<sub>n</sub>:e<sub>n</sub>]</code>.<br><br>
+
+Example: <code>[(1,1):4.7, (2,3):0.01, (3,5):3.14]</code>: a sparse
+two-dimensional array with bound <code>{(1,1), (2,3), 3,5)}</code>, and
+three elements <code>4.7, 0.01, 3.14</code>.
+
+</p>
+
+<h3 id = "Functions">Array functions</h3>
+
+<p>
+The following functions operate on abstract arrays:
+</p>
+
+<p>
+
+<ul>
+
+  <li><code>bound : (Array t t') -> Bound t</code>. <code>bound(a)</code>
+  extracts the bound from the array <code>a</code>.
+  </li>
+
+<li><code>reduce : ((t', t') -> t', Array t t') -> t'</code>. A
+well-known data parallel function that uses a binary operator/function to
+"sum" the elements in an array in a balanced binary tree fashion.<br>
+Example: <code>reduce(+,[2..4 : 1,3,2]) = 1 + 3 + 2 = 6</code>.
+</li>
+
+  <li><code>scan : ((t', t') -> t', Array t t') -> Array t t'</code>.
+Like <code>reduce</code>, but computes an array with all the "partial
+sums". The bound of <code>scan(f,a)</code> is the same as for <code>a</code>,
+and the "partial sums" are computed in the lexicographic order over
+<code>bound(a)</code>.<br>
+Example: <code>scan(+,[2..4 : 1,3,2]) = [2..4 : 1,4,6]</code>.
+  </li>
+
+<li><code>a | bnd</code>, the subarray of the array <code>a</code> defined
+  by the bound <code>bnd</code>.<br> 
+Example: <code>a | 1..10</code>, the subarray of <code>a</code>
+  from <code>1</code> to <code>10</code>.
+</li>
+
+</ul>
+
+</p>
+
+<h3 id = "Assignments">Array assignments</h3>
+
+<p>
+  HERO-ML has two kinds of assignments:
+
+  <ul>
+
+    <li><code>a = e</code>: a "normal" assignment where the array
+    expression <code>e</code> is evaluated, and the resulting array is
+    assigned to the array variable <code>a</code>.<br>
+      Example: <code>a = [2*i : i in 1..10]</code>
+      </li>
+  
+    <li><code>foreach i in bnd do a[e(i)] = e'(i)</code>: a masked update
+    where <code>a[e(i)]</code> is set to <code>e'(i)</code> for
+    all indices <code>i</code> in <code>bnd</code> where <code>e'(i)</code>
+      is defined.<br>
+      Example: <code>foreach i in 1..10 do x[i+1] = y[i-1]</code><br>
+      Example (nested): <code>foreach i in 1..10 do x[i][i+1] = y[3][i-1]</code>.
+          </li>
+
+  </ul>
+  
+Note: these assignments are semantically concurrent, with update of array
+  elements done in parallel. An implementation that is not fully parallel
+  will, in the general case, have to allocate a temporary array where the
+  writes go in order to prevent that array elements are overwritten before
+  used. A data dependency analysis can discover cases where this buffering
+  is unnecessary: however the current HERO-ML implementation does not have
+  such an analysis.
+</p>
+
+<p>
+It might also be that the same element in the left-hand side is targeted by
+the right-hand side for more than one value of <code>i</code>. This implies
+a write conflict, and the value of the targeted array element is then
+non-deterministically set to one of the values written there. An error also
+occurs if, for some <code>i</code>, the target address for the left-hand
+side is out of bounds.<br><br>
+
+Example (write conflict): <code>foreach i in 1..10 do x[1] = y[i]</code><br>
+Explanation: here there is an attempt to write several elements
+of <code>y</code> to <code>x[1]</code>.<br><br>
+Example (write out of bounds): <code>foreach i in 1..10 do x[i] =
+    y[i]</code>, where <code>bound(x) = 1..9</code><br>
+Explanation: if <code>y[10]</code> is defined then there is an attempt to
+write it to <code>x[10]</code>, which is out of bounds.
+</p>
+
+<h3 id = "Lazy">Lazy evaluation of arrays</h3>
+
+<p>
+  As mentioned above, arrays are evaluated in the following way:
+  <ol>
+  <li>Evaluate the bound, and</li>
+  <li>If the bound is finite then evaluate and tabulate each array
+  element within the bound.</li>
+  </ol>
+  This way of evaluating arrays, where the bound is evaluated first, yields
+  a kind of lazy evaluation. Array expressions may contain infinite arrays,
+  yet it is still possible that the bounds for the resulting arrays are finite.
+</p>
+
+<p>
+  The following example illustrates this. Consider the following declarations:<p>
+  <code>
+     add(a,b) = forall i -> a[i] + b[i]<br>
+     ones = forall i -> 1
+  </code><p>
+<code>add</code> adds two arrays element-wise, whereas <code>ones</code> is
+an infinite array with all elements equal to <code>1</code>.  Let us now use
+these functions to define a function <code>inc</code>, which takes an array
+and returns a new array with all elements incremented by one:<p>
+<code>
+inc(a) = add(a,ones)
+</code><p>
+By the rules for computing implicit bounds, we have:<p>
+<code>
+bound(forall i -> a[i] + b[i]) = meet(bound(a),bound(b))
+</code>
+<p>and<p>
+<code>
+bound(forall i -> 1) = all.
+  </code><p>
+Thus, we have:<p>
+<code>
+  bound(inc(a)) =<br>
+  bound(add(a,ones)) =<br>
+  meet(bound(a),all) =<br>
+  (since meet(x,all) = x) =<br>
+  bound(a).
+</code><p>
+Therefore, if <code>a</code> is a finite array
+then <code>inc(a)</code> is finite, and only a finite portion
+of <code>ones</code> needs to be generated when
+evaluating <code>inc(a)</code> even though <code>ones</code> is an infinite
+array.
+</p>
+
+<p>
+It is interesting to compare the solution above with a code that represents
+arrays as lazy lists. For instance, in Haskell we can use <code>map</code>
+and a lazy list of ones to obtain a solution similar to our HERO-ML
+code:<p>
+  <code>
+     add(a,b) = map (\(x,y) -> (x + y)) (zip a b)<br>
+     ones = 1 : ones<br>
+     inc a = add(a,ones)
+  </code><p>
+
+  On the surface these solutions look mor or ore less identical. But there
+  are differences in how the laziness is employed. In HERO-ML there is a
+  clear separation in two phases: one phase of symbolic computation,
+  generating the bound that decides which array elements to compute, and one
+  phase evaluating the selected elements. In the Haskell solution the
+  laziness appears in a more fine-grained manner, intertwined with the other
+  parts of the computation, where single array elements are generating
+  on-demand.
+</p>
+
+<p>
+  By the way: how can we justify the rule<p>
+  <code>
+bound(forall i -> a[i] + b[i]) = meet(bound(a),bound(b))
+</code>
+  ?<p>  The reason is that in HERO-ML the "<code>+</code>" operator
+  is <i>?-strict</i> in its both arguments, that is:<p>
+  <code>? + x = x + ? = ?</code>.<p>
+  Therefore <code>a[i] + b[i] = ?</code>
+  whenever <code>i</code> does not belong to the intersection
+  of <code>bound(a)</code> and <code>bound(b)</code>. This justifies the
+  rule since <code>meet</code> approximates set intersection.
+</p>
+
+</main>
+
+<hr>
+
+<!-- BEGIN FOOTER -->
+<footer>
+<address>
+<i>
+<a href="mailto:hero-ml@list.mdu.se">HERO-ML@list.mdu.se</a><br>
+Latest change: Aug. 26, 2025<br>
+</i>
+</address>
+</footer>
+<!-- END FOOTER -->
+
+</body></html>

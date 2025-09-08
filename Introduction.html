@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html data-theme="light">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+
+<title>HERO-ML: introduction</title>
+
+<link rel="stylesheet" href="css/pico.classless.min.css">
+<link rel="stylesheet" href="css/styles.css">
+
+</head>
+
+<body>
+
+<header>
+<!-- BEGIN NAV HEADER -->
+<nav>
+	<span>&#x2191; <a href="index.html">Home</a></span><!--
+	-->&#x2001;<span></span><!--
+	-->&#x2001;<span><a href="Overview.html">2. HERO-ML overview</a> &#x2192;</span>
+</nav>
+<!-- END NAV HEADER -->
+</header>
+
+<hr>
+
+<main>
+<h2>1. Introduction</h2>
+
+
+<p>
+There is an ever-growing need for computational power. Applications like
+autonomous vehicles require massive amounts of computing for tasks like
+machine learning, advanced signal and image processing, etc. To deal with
+this demand the parallelism often inherent in these applications must be
+utilized, and massively parallel hardware has been developed for this
+purpose. There is today a large proliferation of parallel processors,
+ranging from simple multi-cores over GPGPUs to the gigantic, cluster-based
+supercomputers used in traditional high performance computing. The hardware
+is also becoming increasingly heterogenous, exploiting parallelism on
+different levels.
+</p>
+
+<p>
+Developing software for these heterogenenous systems provides a
+challenge. Utilizing the accelerators well requires parallel code, but
+parallel programming can be very hard and error-prone. The situation is
+aggravated by the fact that current programming practices for the
+accelerators are very dependent on the type of accelerator. For instance,
+code for a GPGPU will typically be very different from code for a
+multi-core. This makes the code less portable, and costly redesigns may be
+needed if the hardware platform is changed.
+</p>
+
+
+<p>
+A possible way forward is to consider <span  class="textit">model-based development</span>,
+where system and software is specified by high-level models rather
+than explicit program code. The models can capture different aspects
+such as system structure, or program logic. If the model is
+<span  class="textit">executable</span> then it can be used to simulate the aspect of the
+system that it captures: such models can be used to capture errors in
+the design early, and they can also be used as test oracles in the
+validation phase.
+</p>
+
+<p>
+HERO-ML is a data-parallel executable modeling language, intended to
+be used for very high level specifications of data parallel
+algorithms. Such executable specifications can serve as portable
+&ldquo;blueprints&rdquo; when developing accelerator code, and they
+can help finding flaws in the algorithms at an early stage of
+development. HERO-ML is inspired by data-parallel and array languages
+such as *lisp&nbsp;[<A HREF="References.html#starlisp-started">7</a>],
+NESL&nbsp;[<A HREF="References.html#nesl-impl-94">1</a>],
+ZPL&nbsp;[<A HREF="References.html#Chamberlain-etal-ZPL">2</a>], and
+HPF&nbsp;[<A HREF="References.html#HPF-handbook">5</a>]. These
+languages all implement a parallel model of computation where the
+parallelism resides in collective operations over data structures,
+such as arrays, rather than explicitly in threads or processes.  This
+model of computation is conceptually much simpler than the control
+parallelism given by threads and processes, and languages like the
+ones mentioned above introduce various high-level concepts and
+constructs that help writing clear and concise data parallel code.
+HERO-ML aims to generalize and unify these concepts, using an abstract
+kind of arrays to carry parallel data. Since HERO-ML is intended for
+high-level modeling rather than high performance production code, its
+design does not have to make compromises in order to allow for
+efficient implementations. Rather, its design focusses on providing
+maximal support for the early modeling phase in the design of software
+for parallel accelerators.
+</p>
+
+</main>
+
+<hr>
+
+<!-- BEGIN FOOTER -->
+<footer>
+<address>
+<i>
+<a href="mailto:hero-ml@list.mdu.se">HERO-ML@list.mdu.se</a><br>
+Latest change: June 10, 2025<br>
+</i>
+</address>
+</footer>
+<!-- END FOOTER -->
+
+</body></html>

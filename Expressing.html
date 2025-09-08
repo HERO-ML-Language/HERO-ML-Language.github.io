@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html data-theme="light">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+
+<title>Expressing some common data parallel operations in HERO-ML</title>
+
+<link rel="stylesheet" href="css/pico.classless.min.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+<header>
+<!-- BEGIN NAV HEADER -->
+<nav>
+	<span>&#x2191; <a href="index.html">Home</a></span><!--
+	-->&#x2001;<span>&#x2190; <a href="Arrays.html">4. Arrays in HERO-ML</a></span><!--
+	-->&#x2001;<span><a href="Syntax.html">6. Concrete syntax</a> &#x2192;</span>
+</nav>
+<!-- END NAV HEADER -->
+</header>
+
+<hr>
+
+<main>
+
+<h2>5. 
+Expressing some common data parallel operations in HERO-ML</h2>
+
+<p>
+  There are a number of parallel primitives that appear in most data
+  parallel languages. They often assume a model of computing where a virtual
+  processor is associated with each index in the array that is being
+  operated on. These processors can concurrenty send and receive array
+  elements.  Here we show how a number of these primitives can be readily
+  expressed in HERO-ML.
+
+  <ul>
+
+    <li><b>Name</b>: Elementwise function application<br>
+      <b>Description</b>: Apply a function <code>f</code> to all elements of the
+      array <code>a</code> in parallel (similar to <code>map</code> in
+      functional languages)<br>
+     <b>HERO-ML code</b>: <code>forall i -> f(a[i])</code>
+    </li>
+<br>
+    <li><b>Name</b>: Parallel read (a.k.a. "get communication")<br>
+      <b>Description</b>: each virtual processor <code>i</code> reads a new
+      value from processor <code>source[i]</code><br>
+     <b>HERO-ML code</b>: <code>forall i -> a[source[i]]</code>
+    </li>
+<br>
+    <li><b>Name</b>: Flooding (or broadcast)<br>
+      <b>Description</b>: a value x is sent to all processors<br>
+     <b>HERO-ML code</b>: <code>forall i -> x</code>
+    </li>
+<br>
+    <li><b>Name</b>: Parallel write (a.k.a. "send communication")<br>
+      <b>Description</b>: Each processor <code>i</code> sends its value <code>a[i]</code>
+      to <code>target[i]</code><br>
+     <b>HERO-ML code</b>: <code>foreach i in bound(a) do a[target[i]] = a[i]</code>
+    </li>
+<br>
+    <li><b>Name</b>: Mask (or filter)<br>
+      <b>Description</b>: Select part of an array <code>a</code> according
+      to a bit mask (given by a predicate bound <code>p</code>) <br>
+     <b>HERO-ML code</b>: <code>a | p</code>
+    </li>
+
+  </ul>
+  
+</p>
+
+<p>
+Data parallel languages that have multi-dimensional arrays typically provide
+  a number of additional matrix primitives that work on 2D arrays. Here are
+  some examples:
+
+  <ul>
+
+    <li><b>Name</b>: Selection of column <code>c</code><br>
+     <b>HERO-ML code</b>: <code>forall i -> a[i,c]</code>
+    </li>
+<br>
+    <li><b>Name</b>: Selection of row <code>r</code><br>
+     <b>HERO-ML code</b>: <code>forall i -> a[r,i]</code>
+    </li>
+<br>
+    <li><b>Name</b>: Selection of main diagonal<br>
+     <b>HERO-ML code</b>: <code>forall i -> a[i,i]</code>
+    </li>
+<br>
+    <li><b>Name</b>: Selection of k:th subdiagonal<br>
+     <b>HERO-ML code</b>: <code>forall i -> a[i,i-k]</code>
+    </li>
+<br>
+    <li><b>Name</b>: Matrix transpose<br>
+     <b>HERO-ML code</b>: <code>forall (i,j) -> a[j,i]</code>
+    </li>
+
+</ul>
+
+</p>
+
+</main>
+
+<hr>
+
+<!-- BEGIN FOOTER -->
+<footer>
+<address>
+<i>
+<a href="mailto:hero-ml@list.mdu.se">HERO-ML@list.mdu.se</a><br>
+Latest change: July 21, 2025<br>
+</i>
+</address>
+</footer>
+<!-- END FOOTER -->
+
+</body></html>

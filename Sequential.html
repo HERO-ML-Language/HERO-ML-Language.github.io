@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html data-theme="light">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+
+<title>Sequential HERO-ML</title>
+
+<link rel="stylesheet" href="css/pico.classless.min.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+<header>
+<!-- BEGIN NAV HEADER -->
+<nav>
+	<span>&#x2191; <a href="index.html">Home</a></span><!--
+	-->&#x2001;<span>&#x2190; <a href="Overview.html">2. HERO-ML overview</a></span><!--
+	-->&#x2001;<span><a href="Arrays.html">4. Arrays in HERO-ML</a> &#x2192;</span>
+</nav>
+<!-- END NAV HEADER -->
+</header>
+
+<hr>
+
+<main>
+<h2>3. Sequential HERO-ML</h2>
+
+<p>
+As mentioned, the sequential part of HERO-ML is a minimum, standard WHILE
+language. It is strongly and explicitly typed, and a HERO-ML program
+consists of a sequence of type declarations followed by a HERO-ML statement.
+In more detail, it has the following features:
+</p>
+
+<ul>
+  
+<li> <b id ="Types">Types</b>: there are simple numerical
+  types <code>int</code>, <code>float</code>, and a boolean
+  type <code>bool</code>. Builtin functions and operators have function
+  types on the form <code>t1 -> t2</code>, where <code>t1</code> is the
+  argument type and <code>t2</code> is the result type. If the function
+  takes several arguments then its argument type is a <i>tuple type</i>
+  <code>(t<sub>1</sub>,...,t<sub>n</sub>)</code>. So, for instance, integer addition has the
+  function type <code>(int,int) -> int</code>.  However, HERO-ML is not a
+  general higher order language.<br>
+<b>Type declarations</b> have the format <code>x : t</code>,
+where <code>x</code> is a program variable and <code>t</code> is a type.
+</li>
+
+<li> <b id = "Operators">Operators and functions</b>: HERO-ML has the
+  usual arithmetic operators (<code>+,-,*,/</code>),
+  relational operators (<code>=,<</code>),
+boolean operators (<code>&&,||</code>), and boolean negation <code>not</code>.
+The arithmetic and relational operators are overloaded with respect to the
+numerical types, so for instance "<code>+</code>" has both the type
+<code>(int,int) -> int</code> and <code>(float,float) -> float</code>.
+Implicit type conversion is not permitted: thus, numerical arguments of
+different type are not allowed for these operators.
+</li>
+
+<li> <b id = "Assignments">"Scalar" assignments</b>: these are
+  conventional, sequential assignments. They have the form <code>x =
+  e</code>, where <code>x</code> is a variable of simple type
+  and <code>e</code> is an expression of the same type.
+</li>
+
+<li> <b id = "Control">Control structures</b>: there is a while
+  loop <code>while b do s</code>, and a conditional statement <code>if b
+  then s else s'</code>, where <code>b</code> is a boolean expression and
+  <code>s</code>, <code>s'</code> are statements. (There is also a
+  side-effect free if-function, called as <code>if(b,e,e')</code>,
+  where <code>e</code>, <code>e'</code> are expressions with the same type.)
+</li>
+
+<li> <b id = "IO">I/O</b>: HERO-ML has a simple model for i/o where
+  the environment provides an input pipe and an output pipe. The
+  statement <code>in t</code>, where <code>t</code> is a type, reads a value
+  of type <code>t</code> from the input pipe and <code>out e</code>,
+  where <code>e</code> is an expression, evaluates <code>e</code> and writes
+  the result to the output pipe.<br>
+  
+There is no way in HERO-ML itself to tie the pipes to more concrete
+  communication channels, such as <code>stdin</code> and <code>stdout</code>
+  in a unix system. Such associations have to be done in the surrounding
+  environment where the HERO-ML program runs.
+</li>
+
+</ul>
+
+<b id ="Omitted">Excluded constructs</b>: the current version of
+HERO-ML lacks some features found in full programming languages. This
+includes user-defined functions and procedures, user-defined types, records,
+objects, and pointers. It is possible that some of these features will be
+added in future versions of HERO-ML.
+
+<p>
+Here is an example of a simple, sequential HERO-ML program:
+</p>
+
+<p>
+<code>
+i : int; x : float:<br>
+&nbsp;&nbsp; i = 1; x = 0.0;<br>
+&nbsp;&nbsp; while i < 10 do<br>
+&nbsp;&nbsp;&nbsp;&nbsp; x = x + in float;<br>
+&nbsp;&nbsp;&nbsp;&nbsp; i = i + 1;<br>
+&nbsp;&nbsp; out x;
+</code>
+</p>
+
+<p>
+This program reads the first ten floating-point numbers from the input pipe,
+and writes their sum to the output pipe. This is a purely sequential
+program, with no data parallelism. Note that the syntax is
+indentation-sensitive, similar to F# and python.
+</p>
+
+</main>
+
+<hr>
+
+<!-- BEGIN FOOTER -->
+<footer>
+<address>
+<i>
+<a href="mailto:hero-ml@list.mdu.se">HERO-ML@list.mdu.se</a><br>
+Latest change: June 9, 2025<br>
+</i>
+</address>
+</footer>
+<!-- END FOOTER -->
+
+</body></html>

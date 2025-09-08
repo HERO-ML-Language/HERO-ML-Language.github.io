@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html data-theme="light">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+
+<title>HERO-ML: overview</title>
+
+<link rel="stylesheet" href="css/pico.classless.min.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+<header>
+<!-- BEGIN NAV HEADER -->
+<nav>
+	<span>&#x2191; <a href="index.html">Home</a></span><!--
+	-->&#x2001;<span>&#x2190; <a href="Introduction.html">1. Introduction</a></span><!--
+	-->&#x2001;<span><a href="Sequential.html">3. Sequential HERO-ML</a> &#x2192;</span>
+</nav>
+<!-- END NAV HEADER -->
+</header>
+
+<hr>
+
+<main>
+
+<h2>2. HERO-ML overview</h2>
+
+<p>
+HERO-ML is an imperative, fully sequential language extended with a
+data parallel array data type. Thus, all the parallelism is expressed
+through operations over these arrays.  The sequential part of the
+language is deliberately kept simple, since its main purpose is to
+demonstrate the principles of very high-level data parallel
+programming rather than providing a full-fledged production
+language. It is a standard WHILE
+language&nbsp;[<A HREF="References.html#ProgramAnalysis:Book">6</a>],
+and the parallel part adds:
+<ul>
+
+  <li>a type for so-called <i>abstract arrays</i> (see
+Section&nbsp;<a href="Arrays.html">4</a>),</li>
+  
+  <li>a set of <i>array expressions</i>,</li>
+  
+  <li>a statement to <i>evaluate</i> such expressions and bind the resulting
+array to a program variable, and</li>
+  
+  <li>a <i>masked concurrent assignment</i>, where all the elements in an
+existing array that fulfil some condition are updated concurrently,
+in-place.
+</li>
+  
+</ul>
+
+</main>
+
+<hr>
+
+<!-- BEGIN FOOTER -->
+<footer>
+<address>
+<i>
+<a href="mailto:hero-ml@list.mdu.se">HERO-ML@list.mdu.se</a><br>
+Latest change: June 9, 2025<br>
+</i>
+</address>
+</footer>
+<!-- END FOOTER -->
+
+</body></html>
